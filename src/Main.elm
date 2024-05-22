@@ -143,5 +143,5 @@ render { frame, width, height } =
 renderTestPointer : Context -> Renderable
 renderTestPointer { testPointer } =
     testPointer
-        |> Maybe.map (\pos -> shapes [ fill Color.red ] [ circle (Vec2.toTuple pos) 10 ])
+        |> Maybe.map (\pos -> shapes [ fill <| Color.hsla 0.15 1.0 0.5 0.3 ] [ circle (Vec2.toTuple pos) 20 ])
         |> Maybe.withDefault (shapes [] [])
