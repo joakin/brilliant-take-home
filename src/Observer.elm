@@ -25,6 +25,6 @@ make pos size =
 render : Observer -> Renderable
 render { pos, size } =
     shapes
-        [ fill Color.lightBlue
+        [ fill Color.lightPurple
         ]
-        [ circle (Vec2.toTuple pos) size ]
+        [ circle ( pos.x, pos.y ) (size / 2) ]

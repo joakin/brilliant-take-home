@@ -12,6 +12,10 @@ import Html exposing (div)
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
 import Html.Events.Extra.Pointer as Pointer
+import LightRay exposing (LightRay)
+import Line
+import Mirror exposing (Mirror)
+import Object exposing (Object)
 import Observer exposing (Observer)
 import Vec2 exposing (Vec2)
 
@@ -37,6 +41,9 @@ type alias Context =
     , delta : Float
     , testPointer : Maybe Vec2
     , observer : Observer
+    , objects : List Object
+    , mirrors : List Mirror
+    , lightRays : List LightRay
     }
 
 
@@ -54,13 +61,61 @@ init _ =
             { width = 500
             , height = 500
             }
+
+        size =
+            30
+
+        centerPos =
+            center dimensions
+
+        space =
+            50
     in
     ( { width = dimensions.width
       , height = dimensions.height
       , frame = 0
       , delta = 0
       , testPointer = Nothing
-      , observer = Observer.make (center dimensions) 10
+      , observer = Observer.make (centerPos |> Vec2.add { x = -space, y = space * 2 * 0.7 }) size
+      , objects =
+            [ Object.make
+                (centerPos
+                    |> Vec2.add (Vec2.vec2 -space (-space * 2 * 0.7))
+                )
+                size
+            ]
+      , mirrors =
+            [ let
+                p1 =
+                    centerPos
+                        |> Vec2.add (Vec2.vec2 space (-space * 2))
+
+                p2 =
+                    centerPos
+                        |> Vec2.add (Vec2.vec2 space (space * 2))
+              in
+              Mirror.make p1 p2
+            ]
+      , lightRays =
+            [ LightRay.make
+                (centerPos
+                    |> Vec2.add (Vec2.vec2 (-space * 2) -space)
+                )
+                (centerPos
+                    |> Vec2.add (Vec2.vec2 (space * 2) -space)
+                )
+            , LightRay.makeFromSegments
+                -- Object pos
+                [ Line.make
+                    (centerPos |> Vec2.add (Vec2.vec2 -space (-space * 2 * 0.7)))
+                    (centerPos |> Vec2.add (Vec2.vec2 space 0))
+
+                -- to Observer pos
+                , Line.make
+                    (centerPos |> Vec2.add (Vec2.vec2 space 0))
+                    (centerPos |> Vec2.add { x = -space, y = space * 2 * 0.7 })
+                ]
+            ]
       }
     , Cmd.none
     )
@@ -123,8 +178,15 @@ clearScreen { width, height } =
 
 
 render : Context -> Renderable
-render { frame, width, height, observer } =
-    Observer.render observer
+render { frame, width, height, observer, objects, mirrors, lightRays } =
+    group []
+        (List.concat
+            [ List.map Mirror.render mirrors
+            , List.map Object.render objects
+            , [ Observer.render observer ]
+            , List.map LightRay.render lightRays
+            ]
+        )
 
 
 renderTestPointer : Context -> Renderable
