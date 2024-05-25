@@ -117,6 +117,26 @@ init _ =
                         |> Vec2.add (Vec2.vec2 (-space * 2) (space * 2))
               in
               Mirror.make p1 p2
+            , let
+                p1 =
+                    centerPos
+                        |> Vec2.add (Vec2.vec2 space (-space * 2))
+
+                p2 =
+                    centerPos
+                        |> Vec2.add (Vec2.vec2 (-space * 2) (-space * 2))
+              in
+              Mirror.make p1 p2
+            , let
+                p1 =
+                    centerPos
+                        |> Vec2.add (Vec2.vec2 space (space * 2))
+
+                p2 =
+                    centerPos
+                        |> Vec2.add (Vec2.vec2 (-space * 2) (space * 2))
+              in
+              Mirror.make p1 p2
             ]
     in
     ( { width = dimensions.width
@@ -220,7 +240,7 @@ updateReflections : Context -> Context
 updateReflections ({ reflections } as ctx) =
     let
         maxDepth =
-            2
+            4
 
         mirrorReflections =
             generateMirrorReflections ctx.observer ctx.mirrors
@@ -233,6 +253,9 @@ updateReflections ({ reflections } as ctx) =
                 mirrorReflections
                 ctx.mirrors
                 mirrorReflections
+
+        allMirrors =
+            ctx.mirrors ++ List.map .reflected allMirrorReflections
 
         observerReflections =
             generateObserverReflections ctx.observer ctx.mirrors
@@ -266,26 +289,43 @@ updateReflections ({ reflections } as ctx) =
                 , mirrors = allMirrorReflections
             }
         , lightRays =
-            List.concat
-                [ allObserverReflections
-                    |> List.map
-                        (\reflection ->
-                            makeRay
-                                [ ( reflection.original.pos, reflection.original.size / 2 )
-                                , ( reflection.intersection, Mirror.width / 2 )
-                                , ( reflection.original.pos, reflection.original.size / 2 )
-                                ]
-                        )
-                , allObjectReflections
-                    |> List.map
-                        (\reflection ->
-                            makeRay
-                                [ ( reflection.original.pos, reflection.original.size / 2 )
-                                , ( reflection.intersection, Mirror.width / 2 )
-                                , ( ctx.observer.pos, ctx.observer.size / 2 )
-                                ]
-                        )
-                ]
+            []
+
+        -- List.concat
+        --     [ allObserverReflections
+        --         |> List.map
+        --             (\reflection ->
+        --                 makeRay
+        --                     [ ( reflection.original.pos, reflection.original.size / 2 )
+        --                     , ( reflection.intersection, Mirror.width / 2 )
+        --                     , ( reflection.original.pos, reflection.original.size / 2 )
+        --                     ]
+        --             )
+        --     , allObjectReflections
+        --         |> List.map
+        --             (\reflection ->
+        --                 let
+        --                     directLine =
+        --                         Line.make ctx.observer.pos reflection.reflected.pos
+        --                     pointsByObserverDistance : List Vec2
+        --                     pointsByObserverDistance =
+        --                         allMirrors
+        --                             |> List.filterMap (\mirror -> Line.intersection mirror.line directLine)
+        --                             |> List.sortBy (Vec2.distanceSquared ctx.observer.pos)
+        --                     segments : List ( Vec2, Float )
+        --                     segments =
+        --                         pointsByObserverDistance
+        --                             |> List.reverse
+        --                             |> List.map (\pos -> ( pos, Mirror.width / 2 ))
+        --                     ray =
+        --                         makeRay
+        --                             ((( reflection.original.pos, reflection.original.size / 2 ) :: segments)
+        --                                 ++ [ ( ctx.observer.pos, ctx.observer.size / 2 ) ]
+        --                             )
+        --                 in
+        --                 ray
+        --             )
+        --     ]
         , eyeSightRays =
             List.concat
                 [ allObserverReflections
