@@ -17,6 +17,7 @@ import Line
 import Mirror exposing (Mirror)
 import Object exposing (Object)
 import Observer exposing (Observer)
+import Reflection exposing (Reflection)
 import Vec2 exposing (Vec2)
 
 
@@ -38,12 +39,18 @@ type alias Context =
     { width : Float
     , height : Float
     , frame : Float
+    , time : Float
     , delta : Float
     , testPointer : Maybe Vec2
     , observer : Observer
     , objects : List Object
     , mirrors : List Mirror
     , lightRays : List LightRay
+    , reflections :
+        { observers : List (Reflection Observer)
+        , objects : List (Reflection Object)
+        , mirrors : List (Reflection Mirror)
+        }
     }
 
 
@@ -74,6 +81,7 @@ init _ =
     ( { width = dimensions.width
       , height = dimensions.height
       , frame = 0
+      , time = 0
       , delta = 0
       , testPointer = Nothing
       , observer = Observer.make (centerPos |> Vec2.add { x = -space, y = space * 2 * 0.7 }) size
@@ -116,7 +124,13 @@ init _ =
                     (centerPos |> Vec2.add { x = -space, y = space * 2 * 0.7 })
                 ]
             ]
+      , reflections =
+            { observers = []
+            , objects = []
+            , mirrors = []
+            }
       }
+        |> updateReflections
     , Cmd.none
     )
 
@@ -126,12 +140,17 @@ subscriptions ctx =
     Browser.Events.onAnimationFrameDelta Frame
 
 
+
+-- UPDATE
+
+
 update : Msg -> Context -> ( Context, Cmd Msg )
 update msg ctx =
     case msg of
         Frame delta ->
             ( { ctx
                 | frame = ctx.frame + 1
+                , time = ctx.time + delta
                 , delta = delta
               }
             , Cmd.none
@@ -151,6 +170,69 @@ update msg ctx =
 
         CanvasPointerUp event ->
             ( { ctx | testPointer = Nothing }, Cmd.none )
+
+
+updateReflections : Context -> Context
+updateReflections ctx =
+    { ctx
+        | reflections =
+            { observers = generateObserverReflections ctx.observer ctx.mirrors
+            , objects = generateObjectReflections ctx.observer ctx.objects ctx.mirrors
+            , mirrors = []
+            }
+    }
+
+
+generateObserverReflections : Observer -> List Mirror -> List (Reflection Observer)
+generateObserverReflections observer mirrors =
+    List.filterMap
+        (\mirror ->
+            let
+                reflectedObserver =
+                    { observer | pos = Line.mirroredPosition observer.pos mirror.line }
+            in
+            Line.intersection (Line.make reflectedObserver.pos observer.pos) mirror.line
+                |> Maybe.map
+                    (\intersectionPoint ->
+                        Reflection.make
+                            { reflected = reflectedObserver
+                            , original = observer
+                            }
+                            intersectionPoint
+                            mirror
+                    )
+        )
+        mirrors
+
+
+generateObjectReflections : Observer -> List Object -> List Mirror -> List (Reflection Object)
+generateObjectReflections observer objects mirrors =
+    List.concatMap
+        (\mirror ->
+            List.filterMap
+                (\object ->
+                    let
+                        reflectedObject =
+                            { object | pos = Line.mirroredPosition object.pos mirror.line }
+                    in
+                    Line.intersection (Line.make reflectedObject.pos observer.pos) mirror.line
+                        |> Maybe.map
+                            (\intersectionPoint ->
+                                Reflection.make
+                                    { reflected = reflectedObject
+                                    , original = object
+                                    }
+                                    intersectionPoint
+                                    mirror
+                            )
+                )
+                objects
+        )
+        mirrors
+
+
+
+-- RENDER
 
 
 view : Context -> Browser.Document Msg
@@ -178,15 +260,16 @@ clearScreen { width, height } =
 
 
 render : Context -> Renderable
-render { frame, width, height, observer, objects, mirrors, lightRays } =
+render { frame, width, height, observer, objects, mirrors, lightRays, reflections } =
     group []
-        (List.concat
-            [ List.map Mirror.render mirrors
-            , List.map Object.render objects
-            , [ Observer.render observer ]
-            , List.map LightRay.render lightRays
-            ]
-        )
+        [ group [ alpha 0.3 ] <| List.map (.reflected >> Observer.render) reflections.observers
+        , group [ alpha 0.3 ] <| List.map (.reflected >> Object.render) reflections.objects
+        , group [ alpha 0.3 ] <| List.map (.reflected >> Mirror.render) reflections.mirrors
+        , group [] <| List.map Mirror.render mirrors
+        , group [] <| List.map Object.render objects
+        , group [] [ Observer.render observer ]
+        , group [] <| List.map LightRay.render lightRays
+        ]
 
 
 renderTestPointer : Context -> Renderable
@@ -206,6 +289,10 @@ renderTestPointer { testPointer } =
                     ]
             )
         |> Maybe.withDefault (shapes [] [])
+
+
+
+-- UTILITIES
 
 
 center : { a | width : Float, height : Float } -> Vec2
