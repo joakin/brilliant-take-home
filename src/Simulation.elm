@@ -624,11 +624,16 @@ view ({ width, height } as ctx) =
 
         screenCenter =
             Vec2.vec2 (width / 2) (height / 2)
+
+        border =
+            25
     in
     Canvas.toHtml
         ( round width, round height )
         [ style "display" "block"
-        , style "border" "25px solid rgba(0, 0, 0, 0.05)"
+        , style "border" (String.fromFloat border ++ "px solid rgba(0, 0, 0, 0.05)")
+        , style "width" (String.fromFloat (width + border * 2) ++ "px")
+        , style "height" (String.fromFloat (height + border * 2) ++ "px")
         , Pointer.onDown (\event -> CanvasPointerDown <| offsetPos event)
         , Pointer.onMove (\event -> CanvasPointerMove <| offsetPos event)
         , Pointer.onUp (\event -> CanvasPointerUp <| offsetPos event)
