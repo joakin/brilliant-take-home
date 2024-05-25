@@ -211,3 +211,8 @@ renderTestPointer { testPointer } =
 center : { a | width : Float, height : Float } -> Vec2
 center { width, height } =
     Vec2.vec2 (width / 2) (height / 2)
+
+
+lerp : (Float -> Float) -> Float -> Float -> Float -> Float
+lerp easing a b t =
+    a + (b - a) * easing t
