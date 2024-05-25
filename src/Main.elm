@@ -5,12 +5,14 @@ import Browser.Events
 import Canvas exposing (..)
 import Canvas.Settings exposing (..)
 import Canvas.Settings.Advanced exposing (..)
+import Canvas.Settings.Text exposing (..)
 import Color
 import Extra.Vec2 as Vec2
 import Html exposing (div)
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
 import Html.Events.Extra.Pointer as Pointer
+import Observer exposing (Observer)
 import Vec2 exposing (Vec2)
 
 
@@ -34,6 +36,7 @@ type alias Context =
     , frame : Float
     , delta : Float
     , testPointer : Maybe Vec2
+    , observer : Observer
     }
 
 
@@ -46,11 +49,18 @@ type Msg
 
 init : Flags -> ( Context, Cmd Msg )
 init _ =
-    ( { width = 500
-      , height = 500
+    let
+        dimensions =
+            { width = 500
+            , height = 500
+            }
+    in
+    ( { width = dimensions.width
+      , height = dimensions.height
       , frame = 0
       , delta = 0
       , testPointer = Nothing
+      , observer = Observer.make (center dimensions) 10
       }
     , Cmd.none
     )
@@ -113,35 +123,29 @@ clearScreen { width, height } =
 
 
 render : Context -> Renderable
-render { frame, width, height } =
-    let
-        centerX =
-            width / 2
-
-        centerY =
-            height / 2
-
-        size =
-            width / 3
-
-        x =
-            -(size / 2)
-
-        y =
-            -(size / 2)
-    in
-    shapes
-        [ transform
-            [ translate centerX centerY
-            , rotate (degrees (frame / 3))
-            ]
-        , fill (Color.hsl (sin <| frame / 1000) 0.7 0.7)
-        ]
-        [ rect ( x, y ) size size ]
+render { frame, width, height, observer } =
+    Observer.render observer
 
 
 renderTestPointer : Context -> Renderable
 renderTestPointer { testPointer } =
     testPointer
-        |> Maybe.map (\pos -> shapes [ fill <| Color.hsla 0.15 1.0 0.5 0.3 ] [ circle (Vec2.toTuple pos) 20 ])
+        |> Maybe.map
+            (\pos ->
+                group [ transform [ translate pos.x pos.y ] ]
+                    [ shapes [ fill <| Color.hsla 0.15 1.0 0.5 0.3 ] [ circle ( 0, 0 ) 20 ]
+                    , text
+                        [ font { size = 12, family = "sans-serif" }
+                        , align Center
+                        , fill Color.black
+                        ]
+                        ( 0, -30 )
+                        ("x: " ++ String.fromFloat pos.x ++ ", y: " ++ String.fromFloat pos.y)
+                    ]
+            )
         |> Maybe.withDefault (shapes [] [])
+
+
+center : { a | width : Float, height : Float } -> Vec2
+center { width, height } =
+    Vec2.vec2 (width / 2) (height / 2)
