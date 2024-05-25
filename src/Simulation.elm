@@ -14,6 +14,7 @@ import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
 import Html.Events.Extra.Pointer as Pointer
 import Line
+import List.Extra
 import Mirror exposing (Mirror)
 import Object exposing (Object)
 import Observer exposing (Observer)
@@ -218,6 +219,7 @@ updateReflections ({ reflections } as ctx) =
                 mirrorReflections
                 ctx.mirrors
                 mirrorReflections
+                |> List.Extra.uniqueBy (\reflection -> reflection.reflected)
 
         allMirrors =
             ctx.mirrors ++ List.map .reflected allMirrorReflections
@@ -233,6 +235,7 @@ updateReflections ({ reflections } as ctx) =
                 observerReflections
                 ctx.mirrors
                 observerReflections
+                |> List.Extra.uniqueBy (\reflection -> reflection.reflected)
 
         objectReflections =
             generateObjectReflections ctx.observer ctx.objects ctx.mirrors
@@ -245,6 +248,7 @@ updateReflections ({ reflections } as ctx) =
                 objectReflections
                 ctx.mirrors
                 objectReflections
+                |> List.Extra.uniqueBy (\reflection -> reflection.reflected)
     in
     { ctx
         | reflections =
