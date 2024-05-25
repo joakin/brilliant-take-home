@@ -91,8 +91,16 @@ intersection l1 l2 =
             -- Parameters for the intersection point
             t1 =
                 ((diff.x * d2.y) - (diff.y * d2.x)) / det
+
+            t2 =
+                ((diff.x * d1.y) - (diff.y * d1.x)) / det
         in
-        Just (Vec2.add l1p1 (Vec2.scale t1 d1))
+        -- Check if the intersection point lies on both line segments
+        if (0 <= t1 && t1 <= 1) && (0 <= t2 && t2 <= 1) then
+            Just (Vec2.add l1p1 (Vec2.scale t1 d1))
+
+        else
+            Nothing
 
 
 render : List Setting -> Line -> Renderable

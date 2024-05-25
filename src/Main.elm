@@ -47,7 +47,12 @@ type alias Context =
     , mirrors : List Mirror
     , lightRays : List LightRay
     , reflections :
-        { observers : List (Reflection Observer)
+        { cache :
+            { observer : Observer
+            , objects : List Object
+            , mirrors : List Mirror
+            }
+        , observers : List (Reflection Observer)
         , objects : List (Reflection Object)
         , mirrors : List (Reflection Mirror)
         }
@@ -77,22 +82,19 @@ init _ =
 
         space =
             50
-    in
-    ( { width = dimensions.width
-      , height = dimensions.height
-      , frame = 0
-      , time = 0
-      , delta = 0
-      , testPointer = Nothing
-      , observer = Observer.make (centerPos |> Vec2.add { x = -space, y = space * 2 * 0.7 }) size
-      , objects =
+
+        observer =
+            Observer.make (centerPos |> Vec2.add { x = -space, y = space * 2 * 0.7 }) size
+
+        objects =
             [ Object.make
                 (centerPos
                     |> Vec2.add (Vec2.vec2 -space (-space * 2 * 0.7))
                 )
                 size
             ]
-      , mirrors =
+
+        mirrors =
             [ let
                 p1 =
                     centerPos
@@ -104,7 +106,8 @@ init _ =
               in
               Mirror.make p1 p2
             ]
-      , lightRays =
+
+        lightRays =
             [ LightRay.make
                 (centerPos
                     |> Vec2.add (Vec2.vec2 (-space * 2) -space)
@@ -124,8 +127,24 @@ init _ =
                     (centerPos |> Vec2.add { x = -space, y = space * 2 * 0.7 })
                 ]
             ]
+    in
+    ( { width = dimensions.width
+      , height = dimensions.height
+      , frame = 0
+      , time = 0
+      , delta = 0
+      , testPointer = Nothing
+      , observer = observer
+      , objects = objects
+      , mirrors = mirrors
+      , lightRays = lightRays
       , reflections =
-            { observers = []
+            { cache =
+                { observer = observer
+                , objects = objects
+                , mirrors = mirrors
+                }
+            , observers = []
             , objects = []
             , mirrors = []
             }
@@ -145,7 +164,7 @@ subscriptions ctx =
 
 
 update : Msg -> Context -> ( Context, Cmd Msg )
-update msg ctx =
+update msg ({ observer } as ctx) =
     case msg of
         Frame delta ->
             ( { ctx
@@ -153,18 +172,28 @@ update msg ctx =
                 , time = ctx.time + delta
                 , delta = delta
               }
+                |> updateSimulation
             , Cmd.none
             )
 
         CanvasPointerDown event ->
-            ( { ctx | testPointer = Just <| Vec2.fromTuple event.pointer.offsetPos }, Cmd.none )
+            ( { ctx
+                | testPointer = Just <| Vec2.fromTuple event.pointer.offsetPos
+                , observer = { observer | pos = Vec2.fromTuple event.pointer.offsetPos }
+              }
+            , Cmd.none
+            )
 
         CanvasPointerMove event ->
-            ( { ctx
-                | testPointer =
-                    ctx.testPointer
-                        |> Maybe.map (\_ -> Vec2.fromTuple event.pointer.offsetPos)
-              }
+            ( ctx.testPointer
+                |> Maybe.map
+                    (\_ ->
+                        { ctx
+                            | testPointer = Just <| Vec2.fromTuple event.pointer.offsetPos
+                            , observer = { observer | pos = Vec2.fromTuple event.pointer.offsetPos }
+                        }
+                    )
+                |> Maybe.withDefault ctx
             , Cmd.none
             )
 
@@ -172,13 +201,37 @@ update msg ctx =
             ( { ctx | testPointer = Nothing }, Cmd.none )
 
 
+updateSimulation : Context -> Context
+updateSimulation ({ reflections } as ctx) =
+    if
+        (ctx.observer == reflections.cache.observer)
+            && (ctx.objects == reflections.cache.objects)
+            && (ctx.mirrors == reflections.cache.mirrors)
+    then
+        ctx
+
+    else
+        { ctx
+            | reflections =
+                { reflections
+                    | cache =
+                        { observer = ctx.observer
+                        , objects = ctx.objects
+                        , mirrors = ctx.mirrors
+                        }
+                }
+        }
+            |> updateReflections
+
+
 updateReflections : Context -> Context
-updateReflections ctx =
+updateReflections ({ reflections } as ctx) =
     { ctx
         | reflections =
-            { observers = generateObserverReflections ctx.observer ctx.mirrors
-            , objects = generateObjectReflections ctx.observer ctx.objects ctx.mirrors
-            , mirrors = []
+            { reflections
+                | observers = generateObserverReflections ctx.observer ctx.mirrors
+                , objects = generateObjectReflections ctx.observer ctx.objects ctx.mirrors
+                , mirrors = []
             }
     }
 
@@ -262,9 +315,9 @@ clearScreen { width, height } =
 render : Context -> Renderable
 render { frame, width, height, observer, objects, mirrors, lightRays, reflections } =
     group []
-        [ group [ alpha 0.3 ] <| List.map (.reflected >> Observer.render) reflections.observers
-        , group [ alpha 0.3 ] <| List.map (.reflected >> Object.render) reflections.objects
-        , group [ alpha 0.3 ] <| List.map (.reflected >> Mirror.render) reflections.mirrors
+        [ group [ alpha 0.3 ] <| List.map (Reflection.render Observer.render) reflections.observers
+        , group [ alpha 0.3 ] <| List.map (Reflection.render Object.render) reflections.objects
+        , group [ alpha 0.3 ] <| List.map (Reflection.render Mirror.render) reflections.mirrors
         , group [] <| List.map Mirror.render mirrors
         , group [] <| List.map Object.render objects
         , group [] [ Observer.render observer ]
