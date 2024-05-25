@@ -1,33 +1,33 @@
-module LightRay exposing (LightRay, make, makeFromSegments, render)
+module Ray exposing (Ray, make, makeFromSegments, render)
 
 import Canvas exposing (..)
 import Canvas.Settings exposing (..)
 import Canvas.Settings.Advanced exposing (..)
 import Canvas.Settings.Line exposing (..)
 import Canvas.Settings.Text exposing (..)
-import Color
+import Color exposing (Color)
 import Line exposing (Line)
 import List.Extra as List
 import Vec2 exposing (Vec2)
 
 
-type alias LightRay =
+type alias Ray =
     { segments : List Line
     }
 
 
-make : Vec2 -> Vec2 -> LightRay
+make : Vec2 -> Vec2 -> Ray
 make start end =
     { segments = [ Line.make start end ] }
 
 
-makeFromSegments : List Line -> LightRay
+makeFromSegments : List Line -> Ray
 makeFromSegments segments =
     { segments = segments }
 
 
-render : LightRay -> Renderable
-render { segments } =
+render : Color -> Ray -> Renderable
+render color { segments } =
     let
         width =
             3
@@ -38,7 +38,7 @@ render { segments } =
                 group []
                     [ group []
                         (List.map
-                            (Line.render [ stroke Color.lightYellow, lineWidth width ])
+                            (Line.render [ stroke color, lineWidth width ])
                             segments
                         )
                     , let
@@ -61,7 +61,7 @@ render { segments } =
                             , rotate angle
                             ]
                       in
-                      shapes [ fill Color.lightYellow, transform arrowTransform ]
+                      shapes [ fill color, transform arrowTransform ]
                         [ path ( 0, 0 )
                             [ lineTo ( -arrowHeadSize, -arrowHeadSize * 0.6 )
                             , lineTo ( -arrowHeadSize, arrowHeadSize * 0.6 )

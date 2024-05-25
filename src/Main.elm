@@ -5,6 +5,7 @@ import Browser.Events
 import Canvas exposing (..)
 import Canvas.Settings exposing (..)
 import Canvas.Settings.Advanced exposing (..)
+import Canvas.Settings.Line exposing (..)
 import Canvas.Settings.Text exposing (..)
 import Color
 import Extra.Vec2 as Vec2
@@ -12,11 +13,11 @@ import Html exposing (div)
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
 import Html.Events.Extra.Pointer as Pointer
-import LightRay exposing (LightRay)
 import Line
 import Mirror exposing (Mirror)
 import Object exposing (Object)
 import Observer exposing (Observer)
+import Ray exposing (Ray)
 import Reflection exposing (Reflection)
 import Vec2 exposing (Vec2)
 
@@ -45,7 +46,8 @@ type alias Context =
     , observer : Observer
     , objects : List Object
     , mirrors : List Mirror
-    , lightRays : List LightRay
+    , lightRays : List Ray
+    , eyeSightRays : List Ray
     , reflections :
         { cache :
             { observer : Observer
@@ -106,27 +108,6 @@ init _ =
               in
               Mirror.make p1 p2
             ]
-
-        lightRays =
-            [ LightRay.make
-                (centerPos
-                    |> Vec2.add (Vec2.vec2 (-space * 2) -space)
-                )
-                (centerPos
-                    |> Vec2.add (Vec2.vec2 (space * 2) -space)
-                )
-            , LightRay.makeFromSegments
-                -- Object pos
-                [ Line.make
-                    (centerPos |> Vec2.add (Vec2.vec2 -space (-space * 2 * 0.7)))
-                    (centerPos |> Vec2.add (Vec2.vec2 space 0))
-
-                -- to Observer pos
-                , Line.make
-                    (centerPos |> Vec2.add (Vec2.vec2 space 0))
-                    (centerPos |> Vec2.add { x = -space, y = space * 2 * 0.7 })
-                ]
-            ]
     in
     ( { width = dimensions.width
       , height = dimensions.height
@@ -137,7 +118,8 @@ init _ =
       , observer = observer
       , objects = objects
       , mirrors = mirrors
-      , lightRays = lightRays
+      , lightRays = []
+      , eyeSightRays = []
       , reflections =
             { cache =
                 { observer = observer
@@ -226,13 +208,50 @@ updateSimulation ({ reflections } as ctx) =
 
 updateReflections : Context -> Context
 updateReflections ({ reflections } as ctx) =
+    let
+        observerReflections =
+            generateObserverReflections ctx.observer ctx.mirrors
+
+        objectReflections =
+            generateObjectReflections ctx.observer ctx.objects ctx.mirrors
+    in
     { ctx
         | reflections =
             { reflections
-                | observers = generateObserverReflections ctx.observer ctx.mirrors
-                , objects = generateObjectReflections ctx.observer ctx.objects ctx.mirrors
+                | observers = observerReflections
+                , objects = objectReflections
                 , mirrors = []
             }
+        , lightRays =
+            observerReflections
+                |> List.map
+                    (\reflection ->
+                        Ray.makeFromSegments
+                            [ Line.make
+                                reflection.original.pos
+                                reflection.intersection
+                                |> Line.displace -5
+                            , Line.make
+                                reflection.intersection
+                                reflection.original.pos
+                                |> Line.displace 0
+                            ]
+                    )
+        , eyeSightRays =
+            observerReflections
+                |> List.map
+                    (\reflection ->
+                        Ray.makeFromSegments
+                            [ Line.make
+                                ctx.observer.pos
+                                reflection.intersection
+                                |> Line.displace 5
+                            , Line.make
+                                reflection.intersection
+                                reflection.reflected.pos
+                                |> Line.displace 5
+                            ]
+                    )
     }
 
 
@@ -313,7 +332,7 @@ clearScreen { width, height } =
 
 
 render : Context -> Renderable
-render { frame, width, height, observer, objects, mirrors, lightRays, reflections } =
+render { frame, width, height, observer, objects, mirrors, lightRays, eyeSightRays, reflections } =
     group []
         [ group [ alpha 0.3 ] <| List.map (Reflection.render Observer.render) reflections.observers
         , group [ alpha 0.3 ] <| List.map (Reflection.render Object.render) reflections.objects
@@ -321,7 +340,8 @@ render { frame, width, height, observer, objects, mirrors, lightRays, reflection
         , group [] <| List.map Mirror.render mirrors
         , group [] <| List.map Object.render objects
         , group [] [ Observer.render observer ]
-        , group [] <| List.map LightRay.render lightRays
+        , group [] <| List.map (Ray.render Color.lightGreen) eyeSightRays
+        , group [] <| List.map (Ray.render Color.lightYellow) lightRays
         ]
 
 

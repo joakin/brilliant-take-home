@@ -1,4 +1,4 @@
-module Line exposing (Line, intersection, make, mirroredPosition, render)
+module Line exposing (Line, displace, intersection, make, mirroredPosition, render)
 
 import Canvas exposing (..)
 import Canvas.Settings exposing (..)
@@ -25,33 +25,28 @@ make p1 p2 =
 mirroredPosition : Vec2 -> Line -> Vec2
 mirroredPosition point { p1, p2 } =
     let
-        -- Vector representing the line
         lineVec =
             Vec2.sub p2 p1
 
-        -- Vector from p1 to the point
         pointVec =
             Vec2.sub point p1
 
-        -- Normalize the line vector
         lineDir =
             Vec2.normalize lineVec
 
-        -- Projection of pointVec onto lineDir
         projectionLength =
             Vec2.dot pointVec lineDir
 
         projection =
             Vec2.scale projectionLength lineDir
 
-        -- Perpendicular vector from the line to the point
         perpendicular =
             Vec2.sub pointVec projection
 
-        -- Mirrored point is p1 + projection - perpendicular
         mirroredVec =
             Vec2.sub projection perpendicular
     in
+    -- Mirrored point is p1 + projection - perpendicular
     Vec2.add p1 mirroredVec
 
 
@@ -101,6 +96,27 @@ intersection l1 l2 =
 
         else
             Nothing
+
+
+displace : Float -> Line -> Line
+displace displacement { p1, p2 } =
+    let
+        direction =
+            Vec2.sub p2 p1
+
+        perpendicular =
+            Vec2.vec2 -direction.y direction.x
+
+        normalizedPerpendicular =
+            Vec2.normalize perpendicular
+
+        displacementVector =
+            Vec2.scale displacement normalizedPerpendicular
+    in
+    -- Displace both points by the displacement vector
+    { p1 = Vec2.add p1 displacementVector
+    , p2 = Vec2.add p2 displacementVector
+    }
 
 
 render : List Setting -> Line -> Renderable
