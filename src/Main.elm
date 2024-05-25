@@ -107,6 +107,16 @@ init _ =
                         |> Vec2.add (Vec2.vec2 space (space * 2))
               in
               Mirror.make p1 p2
+            , let
+                p1 =
+                    centerPos
+                        |> Vec2.add (Vec2.vec2 (-space * 2) (-space * 2))
+
+                p2 =
+                    centerPos
+                        |> Vec2.add (Vec2.vec2 (-space * 2) (space * 2))
+              in
+              Mirror.make p1 p2
             ]
     in
     ( { width = dimensions.width
@@ -214,13 +224,16 @@ updateReflections ({ reflections } as ctx) =
 
         objectReflections =
             generateObjectReflections ctx.observer ctx.objects ctx.mirrors
+
+        mirrorReflections =
+            generateMirrorReflections ctx.observer ctx.mirrors
     in
     { ctx
         | reflections =
             { reflections
                 | observers = observerReflections
                 , objects = objectReflections
-                , mirrors = []
+                , mirrors = mirrorReflections
             }
         , lightRays =
             List.concat
@@ -335,6 +348,49 @@ generateObjectReflections observer objects mirrors =
         mirrors
 
 
+generateMirrorReflections : Observer -> List Mirror -> List (Reflection Mirror)
+generateMirrorReflections observer mirrors =
+    List.concatMap
+        (\mirror ->
+            List.filterMap
+                (\mirror2 ->
+                    if mirror /= mirror2 then
+                        let
+                            reflectedMirror =
+                                Mirror.make
+                                    (Line.mirroredPosition mirror2.line.p1 mirror.line)
+                                    (Line.mirroredPosition mirror2.line.p2 mirror.line)
+
+                            reflection intersectionPoint =
+                                Reflection.make
+                                    { reflected = reflectedMirror
+                                    , original = mirror2
+                                    }
+                                    intersectionPoint
+                                    mirror
+                        in
+                        case
+                            ( Line.intersection (Line.make observer.pos reflectedMirror.line.p1) mirror.line
+                            , Line.intersection (Line.make observer.pos reflectedMirror.line.p2) mirror.line
+                            )
+                        of
+                            ( Just intersectionPoint, _ ) ->
+                                Just <| reflection intersectionPoint
+
+                            ( _, Just intersectionPoint ) ->
+                                Just <| reflection intersectionPoint
+
+                            _ ->
+                                Nothing
+
+                    else
+                        Nothing
+                )
+                mirrors
+        )
+        mirrors
+
+
 
 -- RENDER
 
@@ -364,9 +420,17 @@ clearScreen { width, height } =
 
 
 render : Context -> Renderable
-render { frame, width, height, observer, objects, mirrors, lightRays, eyeSightRays, reflections } =
-    group []
-        [ group [ alpha 0.3 ] <| List.map (Reflection.render Observer.render) reflections.observers
+render ({ frame, width, height, observer, objects, mirrors, lightRays, eyeSightRays, reflections } as ctx) =
+    let
+        centerPos =
+            center ctx
+
+        zoom =
+            0.75
+    in
+    group [ transform [ translate centerPos.x centerPos.y, scale zoom zoom, translate -centerPos.x -centerPos.y ] ]
+        [ group [ alpha 0.3 ] <| List.map (Reflection.render Mirror.render) reflections.mirrors
+        , group [ alpha 0.3 ] <| List.map (Reflection.render Observer.render) reflections.observers
         , group [ alpha 0.3 ] <| List.map (Reflection.render Object.render) reflections.objects
         , group [ alpha 0.3 ] <| List.map (Reflection.render Mirror.render) reflections.mirrors
         , group [] <| List.map Mirror.render mirrors
