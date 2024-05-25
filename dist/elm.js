@@ -784,11 +784,11 @@ function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
 
 function _Debug_regionToString(region)
 {
-	if (region.co.aI === region.bQ.aI)
+	if (region.cl.aJ === region.bR.aJ)
 	{
-		return 'on line ' + region.co.aI;
+		return 'on line ' + region.cl.aJ;
 	}
-	return 'on lines ' + region.co.aI + ' through ' + region.bQ.aI;
+	return 'on lines ' + region.cl.aJ + ' through ' + region.bR.aJ;
 }
 
 
@@ -1857,9 +1857,9 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.b2,
-		impl.cA,
-		impl.cq,
+		impl.b1,
+		impl.cx,
+		impl.cn,
 		function() { return function() {} }
 	);
 });
@@ -2720,8 +2720,8 @@ var _VirtualDom_mapEventRecord = F2(function(func, record)
 {
 	return {
 		K: func(record.K),
-		aR: record.aR,
-		aO: record.aO
+		aS: record.aS,
+		aP: record.aP
 	}
 });
 
@@ -2990,10 +2990,10 @@ function _VirtualDom_makeCallback(eventNode, initialHandler)
 
 		var value = result.a;
 		var message = !tag ? value : tag < 3 ? value.a : value.K;
-		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.aR;
+		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.aS;
 		var currentEventNode = (
 			stopPropagation && event.stopPropagation(),
-			(tag == 2 ? value.b : tag == 3 && value.aO) && event.preventDefault(),
+			(tag == 2 ? value.b : tag == 3 && value.aP) && event.preventDefault(),
 			eventNode
 		);
 		var tagger;
@@ -3943,11 +3943,11 @@ var _Browser_element = _Debugger_element || F4(function(impl, flagDecoder, debug
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.b2,
-		impl.cA,
-		impl.cq,
+		impl.b1,
+		impl.cx,
+		impl.cn,
 		function(sendToApp, initialModel) {
-			var view = impl.cB;
+			var view = impl.cy;
 			/**/
 			var domNode = args['node'];
 			//*/
@@ -3979,12 +3979,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.b2,
-		impl.cA,
-		impl.cq,
+		impl.b1,
+		impl.cx,
+		impl.cn,
 		function(sendToApp, initialModel) {
-			var divertHrefToApp = impl.aQ && impl.aQ(sendToApp)
-			var view = impl.cB;
+			var divertHrefToApp = impl.aR && impl.aR(sendToApp)
+			var view = impl.cy;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
 			var currNode = _VirtualDom_virtualize(bodyNode);
@@ -3992,12 +3992,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 			{
 				_VirtualDom_divertHrefToApp = divertHrefToApp;
 				var doc = view(model);
-				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.bz);
+				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.bA);
 				var patches = _VirtualDom_diff(currNode, nextNode);
 				bodyNode = _VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
 				_VirtualDom_divertHrefToApp = 0;
-				(title !== doc.cu) && (_VirtualDom_doc.title = title = doc.cu);
+				(title !== doc.cr) && (_VirtualDom_doc.title = title = doc.cr);
 			});
 		}
 	);
@@ -4053,12 +4053,12 @@ function _Browser_makeAnimator(model, draw)
 
 function _Browser_application(impl)
 {
-	var onUrlChange = impl.ca;
-	var onUrlRequest = impl.cb;
+	var onUrlChange = impl.b9;
+	var onUrlRequest = impl.ca;
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
-		aQ: function(sendToApp)
+		aR: function(sendToApp)
 		{
 			key.a = sendToApp;
 			_Browser_window.addEventListener('popstate', key);
@@ -4074,9 +4074,9 @@ function _Browser_application(impl)
 					var next = $elm$url$Url$fromString(href).a;
 					sendToApp(onUrlRequest(
 						(next
-							&& curr.bj === next.bj
-							&& curr.a0 === next.a0
-							&& curr.bg.a === next.bg.a
+							&& curr.bk === next.bk
+							&& curr.a1 === next.a1
+							&& curr.bh.a === next.bh.a
 						)
 							? $elm$browser$Browser$Internal(next)
 							: $elm$browser$Browser$External(href)
@@ -4084,13 +4084,13 @@ function _Browser_application(impl)
 				}
 			});
 		},
-		b2: function(flags)
+		b1: function(flags)
 		{
-			return A3(impl.b2, flags, _Browser_getUrl(), key);
+			return A3(impl.b1, flags, _Browser_getUrl(), key);
 		},
-		cB: impl.cB,
-		cA: impl.cA,
-		cq: impl.cq
+		cy: impl.cy,
+		cx: impl.cx,
+		cn: impl.cn
 	});
 }
 
@@ -4156,17 +4156,17 @@ var _Browser_decodeEvent = F2(function(decoder, event)
 function _Browser_visibilityInfo()
 {
 	return (typeof _VirtualDom_doc.hidden !== 'undefined')
-		? { b$: 'hidden', bD: 'visibilitychange' }
+		? { b_: 'hidden', bE: 'visibilitychange' }
 		:
 	(typeof _VirtualDom_doc.mozHidden !== 'undefined')
-		? { b$: 'mozHidden', bD: 'mozvisibilitychange' }
+		? { b_: 'mozHidden', bE: 'mozvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.msHidden !== 'undefined')
-		? { b$: 'msHidden', bD: 'msvisibilitychange' }
+		? { b_: 'msHidden', bE: 'msvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.webkitHidden !== 'undefined')
-		? { b$: 'webkitHidden', bD: 'webkitvisibilitychange' }
-		: { b$: 'hidden', bD: 'visibilitychange' };
+		? { b_: 'webkitHidden', bE: 'webkitvisibilitychange' }
+		: { b_: 'hidden', bE: 'visibilitychange' };
 }
 
 
@@ -4247,10 +4247,10 @@ var _Browser_call = F2(function(functionName, id)
 function _Browser_getViewport()
 {
 	return {
-		bo: _Browser_getScene(),
-		bs: {
-			aA: _Browser_window.pageXOffset,
-			aB: _Browser_window.pageYOffset,
+		bp: _Browser_getScene(),
+		bt: {
+			aB: _Browser_window.pageXOffset,
+			aC: _Browser_window.pageYOffset,
 			N: _Browser_doc.documentElement.clientWidth,
 			J: _Browser_doc.documentElement.clientHeight
 		}
@@ -4286,13 +4286,13 @@ function _Browser_getViewportOf(id)
 	return _Browser_withNode(id, function(node)
 	{
 		return {
-			bo: {
+			bp: {
 				N: node.scrollWidth,
 				J: node.scrollHeight
 			},
-			bs: {
-				aA: node.scrollLeft,
-				aB: node.scrollTop,
+			bt: {
+				aB: node.scrollLeft,
+				aC: node.scrollTop,
 				N: node.clientWidth,
 				J: node.clientHeight
 			}
@@ -4324,16 +4324,16 @@ function _Browser_getElement(id)
 		var x = _Browser_window.pageXOffset;
 		var y = _Browser_window.pageYOffset;
 		return {
-			bo: _Browser_getScene(),
-			bs: {
-				aA: x,
-				aB: y,
+			bp: _Browser_getScene(),
+			bt: {
+				aB: x,
+				aC: y,
 				N: _Browser_doc.documentElement.clientWidth,
 				J: _Browser_doc.documentElement.clientHeight
 			},
-			bP: {
-				aA: x + rect.left,
-				aB: y + rect.top,
+			bQ: {
+				aB: x + rect.left,
+				aC: y + rect.top,
 				N: rect.width,
 				J: rect.height
 			}
@@ -4874,7 +4874,7 @@ var $elm$url$Url$Http = 0;
 var $elm$url$Url$Https = 1;
 var $elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
-		return {a$: fragment, a0: host, bd: path, bg: port_, bj: protocol, bk: query};
+		return {a0: fragment, a1: host, be: path, bh: port_, bk: protocol, bl: query};
 	});
 var $elm$core$String$contains = _String_contains;
 var $elm$core$String$length = _String_length;
@@ -5173,16 +5173,16 @@ var $author$project$Line$make = F2(
 var $author$project$Mirror$make = F2(
 	function (point1, point2) {
 		return {
-			aI: A2($author$project$Line$make, point1, point2)
+			aJ: A2($author$project$Line$make, point1, point2)
 		};
 	});
 var $author$project$Object$make = F2(
 	function (pos, size) {
-		return {ch: pos, ac: size};
+		return {aa: pos, ad: size};
 	});
 var $author$project$Observer$make = F2(
 	function (pos, size) {
-		return {ch: pos, ac: size};
+		return {aa: pos, ad: size};
 	});
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $elm$core$List$append = F2(
@@ -5198,13 +5198,13 @@ var $elm$core$List$concat = function (lists) {
 };
 var $elm$core$Basics$pow = _Basics_pow;
 var $jjant$linear_algebra$Vec2$lengthSquared = function (_v0) {
-	var x = _v0.aA;
-	var y = _v0.aB;
+	var x = _v0.aB;
+	var y = _v0.aC;
 	return A2($elm$core$Basics$pow, x, 2) + A2($elm$core$Basics$pow, y, 2);
 };
 var $jjant$linear_algebra$Vec2$sub = F2(
 	function (v1, v2) {
-		return {aA: v1.aA - v2.aA, aB: v1.aB - v2.aB};
+		return {aB: v1.aB - v2.aB, aC: v1.aC - v2.aC};
 	});
 var $jjant$linear_algebra$Vec2$distanceSquared = F2(
 	function (v1, v2) {
@@ -5242,11 +5242,11 @@ var $elm$core$Basics$abs = function (n) {
 };
 var $jjant$linear_algebra$Vec2$add = F2(
 	function (v1, v2) {
-		return {aA: v1.aA + v2.aA, aB: v1.aB + v2.aB};
+		return {aB: v1.aB + v2.aB, aC: v1.aC + v2.aC};
 	});
 var $jjant$linear_algebra$Vec2$scale = F2(
 	function (factor, vec) {
-		return {aA: vec.aA * factor, aB: vec.aB * factor};
+		return {aB: vec.aB * factor, aC: vec.aC * factor};
 	});
 var $author$project$Line$intersection = F2(
 	function (l1, l2) {
@@ -5259,15 +5259,15 @@ var $author$project$Line$intersection = F2(
 		var l1p1 = _v1.a;
 		var l1p2 = _v1.b;
 		var d1 = A2($jjant$linear_algebra$Vec2$sub, l1p2, l1p1);
-		var det = (d1.aA * d2.aB) - (d1.aB * d2.aA);
+		var det = (d1.aB * d2.aC) - (d1.aC * d2.aB);
 		if (_Utils_cmp(
 			$elm$core$Basics$abs(det),
 			eps) < 0) {
 			return $elm$core$Maybe$Nothing;
 		} else {
 			var diff = A2($jjant$linear_algebra$Vec2$sub, l2p1, l1p1);
-			var t1 = ((diff.aA * d2.aB) - (diff.aB * d2.aA)) / det;
-			var t2 = ((diff.aA * d1.aB) - (diff.aB * d1.aA)) / det;
+			var t1 = ((diff.aB * d2.aC) - (diff.aC * d2.aB)) / det;
+			var t2 = ((diff.aB * d1.aC) - (diff.aC * d1.aB)) / det;
 			return (((0 <= t1) && (t1 <= 1)) && ((0 <= t2) && (t2 <= 1))) ? $elm$core$Maybe$Just(
 				A2(
 					$jjant$linear_algebra$Vec2$add,
@@ -5275,16 +5275,15 @@ var $author$project$Line$intersection = F2(
 					A2($jjant$linear_algebra$Vec2$scale, t1, d1))) : $elm$core$Maybe$Nothing;
 		}
 	});
-var $author$project$Reflection$make = F4(
-	function (_v0, intersection, mirror, transform) {
-		var original = _v0.aN;
-		var reflected = _v0.ax;
-		return {bW: transform.bW, bX: transform.bX, a2: intersection, a6: mirror, aN: original, ax: reflected, cl: transform.cl};
+var $author$project$Reflection$make = F3(
+	function (_v0, intersection, mirror) {
+		var original = _v0.aO;
+		var reflected = _v0.ay;
+		return {a3: intersection, a7: mirror, aO: original, ay: reflected};
 	});
-var $elm$core$Basics$atan2 = _Basics_atan2;
 var $jjant$linear_algebra$Vec2$dot = F2(
 	function (v1, v2) {
-		return (v1.aA * v2.aA) + (v1.aB * v2.aB);
+		return (v1.aB * v2.aB) + (v1.aC * v2.aC);
 	});
 var $elm$core$Basics$sqrt = _Basics_sqrt;
 var $jjant$linear_algebra$Vec2$length = function (vec) {
@@ -5295,7 +5294,6 @@ var $jjant$linear_algebra$Vec2$normalize = function (vec) {
 	var len = $jjant$linear_algebra$Vec2$length(vec);
 	return (len > 0) ? A2($jjant$linear_algebra$Vec2$scale, 1 / len, vec) : vec;
 };
-var $elm$core$Basics$not = _Basics_not;
 var $author$project$Line$mirroredPosition = F2(
 	function (point, _v0) {
 		var p1 = _v0.z;
@@ -5307,19 +5305,7 @@ var $author$project$Line$mirroredPosition = F2(
 		var projection = A2($jjant$linear_algebra$Vec2$scale, projectionLength, lineDir);
 		var perpendicular = A2($jjant$linear_algebra$Vec2$sub, pointVec, projection);
 		var mirroredVec = A2($jjant$linear_algebra$Vec2$sub, projection, perpendicular);
-		var mirroredPoint = A2($jjant$linear_algebra$Vec2$add, p1, mirroredVec);
-		var deltaY = p2.aB - p1.aB;
-		var deltaX = p2.aA - p1.aA;
-		var angle = A2($elm$core$Basics$atan2, deltaY, deltaX);
-		var _v1 = ($elm$core$Basics$abs(deltaX) < 0.0001) ? _Utils_Tuple2(true, false) : (($elm$core$Basics$abs(deltaY) < 0.0001) ? _Utils_Tuple2(false, true) : _Utils_Tuple2(false, false));
-		var flipH = _v1.a;
-		var flipV = _v1.b;
-		return {
-			bW: flipH,
-			bX: flipV,
-			ch: mirroredPoint,
-			cl: ((!flipH) && (!flipV)) ? angle : 0
-		};
+		return A2($jjant$linear_algebra$Vec2$add, p1, mirroredVec);
 	});
 var $elm$core$Basics$neq = _Utils_notEqual;
 var $author$project$Simulation$generateMirrorReflections = F2(
@@ -5333,25 +5319,24 @@ var $author$project$Simulation$generateMirrorReflections = F2(
 						if (!_Utils_eq(mirror, mirror2)) {
 							var reflectedMirror = A2(
 								$author$project$Mirror$make,
-								A2($author$project$Line$mirroredPosition, mirror2.aI.z, mirror.aI).ch,
-								A2($author$project$Line$mirroredPosition, mirror2.aI.A, mirror.aI).ch);
+								A2($author$project$Line$mirroredPosition, mirror2.aJ.z, mirror.aJ),
+								A2($author$project$Line$mirroredPosition, mirror2.aJ.A, mirror.aJ));
 							var reflection = function (intersectionPoint) {
-								return A4(
+								return A3(
 									$author$project$Reflection$make,
-									{aN: mirror2, ax: reflectedMirror},
+									{aO: mirror2, ay: reflectedMirror},
 									intersectionPoint,
-									mirror,
-									{bW: false, bX: false, cl: 0});
+									mirror);
 							};
 							var _v0 = _Utils_Tuple2(
 								A2(
 									$author$project$Line$intersection,
-									A2($author$project$Line$make, observer.ch, reflectedMirror.aI.z),
-									mirror.aI),
+									A2($author$project$Line$make, observer.aa, reflectedMirror.aJ.z),
+									mirror.aJ),
 								A2(
 									$author$project$Line$intersection,
-									A2($author$project$Line$make, observer.ch, reflectedMirror.aI.A),
-									mirror.aI));
+									A2($author$project$Line$make, observer.aa, reflectedMirror.aJ.A),
+									mirror.aJ));
 							if (!_v0.a.$) {
 								var intersectionPoint = _v0.a.a;
 								return $elm$core$Maybe$Just(
@@ -5391,24 +5376,24 @@ var $author$project$Simulation$generateObjectReflections = F3(
 				return A2(
 					$elm$core$List$filterMap,
 					function (object) {
-						var mirroredPosition = A2($author$project$Line$mirroredPosition, object.ch, mirror.aI);
 						var reflectedObject = _Utils_update(
 							object,
-							{ch: mirroredPosition.ch});
+							{
+								aa: A2($author$project$Line$mirroredPosition, object.aa, mirror.aJ)
+							});
 						return A2(
 							$elm$core$Maybe$map,
 							function (intersectionPoint) {
-								return A4(
+								return A3(
 									$author$project$Reflection$make,
-									{aN: object, ax: reflectedObject},
+									{aO: object, ay: reflectedObject},
 									intersectionPoint,
-									mirror,
-									mirroredPosition);
+									mirror);
 							},
 							A2(
 								$author$project$Line$intersection,
-								A2($author$project$Line$make, reflectedObject.ch, observer.ch),
-								mirror.aI));
+								A2($author$project$Line$make, reflectedObject.aa, observer.aa),
+								mirror.aJ));
 					},
 					objects);
 			},
@@ -5419,24 +5404,24 @@ var $author$project$Simulation$generateObserverReflections = F2(
 		return A2(
 			$elm$core$List$filterMap,
 			function (mirror) {
-				var mirroredPosition = A2($author$project$Line$mirroredPosition, observer.ch, mirror.aI);
 				var reflectedObserver = _Utils_update(
 					observer,
-					{ch: mirroredPosition.ch});
+					{
+						aa: A2($author$project$Line$mirroredPosition, observer.aa, mirror.aJ)
+					});
 				return A2(
 					$elm$core$Maybe$map,
 					function (intersectionPoint) {
-						return A4(
+						return A3(
 							$author$project$Reflection$make,
-							{aN: observer, ax: reflectedObserver},
+							{aO: observer, ay: reflectedObserver},
 							intersectionPoint,
-							mirror,
-							mirroredPosition);
+							mirror);
 					},
 					A2(
 						$author$project$Line$intersection,
-						A2($author$project$Line$make, reflectedObserver.ch, observer.ch),
-						mirror.aI));
+						A2($author$project$Line$make, reflectedObserver.aa, observer.aa),
+						mirror.aJ));
 			},
 			mirrors);
 	});
@@ -5454,28 +5439,27 @@ var $author$project$Simulation$generateReflectedMirrorReflections = F6(
 						return A2(
 							$elm$core$List$filterMap,
 							function (reflectedMirror) {
-								if (!_Utils_eq(mirror, reflectedMirror.a6)) {
+								if (!_Utils_eq(mirror, reflectedMirror.a7)) {
 									var reReflectedMirror = A2(
 										$author$project$Mirror$make,
-										A2($author$project$Line$mirroredPosition, reflectedMirror.ax.aI.z, mirror.aI).ch,
-										A2($author$project$Line$mirroredPosition, reflectedMirror.ax.aI.A, mirror.aI).ch);
+										A2($author$project$Line$mirroredPosition, reflectedMirror.ay.aJ.z, mirror.aJ),
+										A2($author$project$Line$mirroredPosition, reflectedMirror.ay.aJ.A, mirror.aJ));
 									var reflection = function (intersectionPoint) {
-										return A4(
+										return A3(
 											$author$project$Reflection$make,
-											{aN: reflectedMirror.aN, ax: reReflectedMirror},
+											{aO: reflectedMirror.aO, ay: reReflectedMirror},
 											intersectionPoint,
-											mirror,
-											{bW: false, bX: false, cl: 0});
+											mirror);
 									};
 									var _v0 = _Utils_Tuple2(
 										A2(
 											$author$project$Line$intersection,
-											A2($author$project$Line$make, observer.ch, reReflectedMirror.aI.z),
-											mirror.aI),
+											A2($author$project$Line$make, observer.aa, reReflectedMirror.aJ.z),
+											mirror.aJ),
 										A2(
 											$author$project$Line$intersection,
-											A2($author$project$Line$make, observer.ch, reReflectedMirror.aI.A),
-											mirror.aI));
+											A2($author$project$Line$make, observer.aa, reReflectedMirror.aJ.A),
+											mirror.aJ));
 									if (!_v0.a.$) {
 										var intersectionPoint = _v0.a.a;
 										return $elm$core$Maybe$Just(
@@ -5525,23 +5509,24 @@ var $author$project$Simulation$generateReflectedObjectReflections = F6(
 						return A2(
 							$elm$core$List$filterMap,
 							function (reflectedObject) {
-								if (!_Utils_eq(mirror, reflectedObject.a6)) {
-									var mirroredPosition = A2($author$project$Line$mirroredPosition, reflectedObject.ax.ch, mirror.aI);
-									var reReflectedObject = A2($author$project$Object$make, mirroredPosition.ch, reflectedObject.ax.ac);
+								if (!_Utils_eq(mirror, reflectedObject.a7)) {
+									var reReflectedObject = A2(
+										$author$project$Object$make,
+										A2($author$project$Line$mirroredPosition, reflectedObject.ay.aa, mirror.aJ),
+										reflectedObject.ay.ad);
 									return A2(
 										$elm$core$Maybe$map,
 										function (intersectionPoint) {
-											return A4(
+											return A3(
 												$author$project$Reflection$make,
-												{aN: reflectedObject.aN, ax: reReflectedObject},
+												{aO: reflectedObject.aO, ay: reReflectedObject},
 												intersectionPoint,
-												mirror,
-												mirroredPosition);
+												mirror);
 										},
 										A2(
 											$author$project$Line$intersection,
-											A2($author$project$Line$make, reReflectedObject.ch, observer.ch),
-											mirror.aI));
+											A2($author$project$Line$make, reReflectedObject.aa, observer.aa),
+											mirror.aJ));
 								} else {
 									return $elm$core$Maybe$Nothing;
 								}
@@ -5578,23 +5563,24 @@ var $author$project$Simulation$generateReflectedObserverReflections = F6(
 						return A2(
 							$elm$core$List$filterMap,
 							function (reflectedObserver) {
-								if (!_Utils_eq(mirror, reflectedObserver.a6)) {
-									var mirroredPosition = A2($author$project$Line$mirroredPosition, reflectedObserver.ax.ch, mirror.aI);
-									var reReflectedObserver = A2($author$project$Observer$make, mirroredPosition.ch, reflectedObserver.ax.ac);
+								if (!_Utils_eq(mirror, reflectedObserver.a7)) {
+									var reReflectedObserver = A2(
+										$author$project$Observer$make,
+										A2($author$project$Line$mirroredPosition, reflectedObserver.ay.aa, mirror.aJ),
+										reflectedObserver.ay.ad);
 									return A2(
 										$elm$core$Maybe$map,
 										function (intersectionPoint) {
-											return A4(
+											return A3(
 												$author$project$Reflection$make,
-												{aN: reflectedObserver.aN, ax: reReflectedObserver},
+												{aO: reflectedObserver.aO, ay: reReflectedObserver},
 												intersectionPoint,
-												mirror,
-												mirroredPosition);
+												mirror);
 										},
 										A2(
 											$author$project$Line$intersection,
-											A2($author$project$Line$make, reReflectedObserver.ch, observer.ch),
-											mirror.aI));
+											A2($author$project$Line$make, reReflectedObserver.aa, observer.aa),
+											mirror.aJ));
 								} else {
 									return $elm$core$Maybe$Nothing;
 								}
@@ -5619,17 +5605,17 @@ var $author$project$Simulation$generateReflectedObserverReflections = F6(
 		}
 	});
 var $jjant$linear_algebra$Vec2$direction = function (_v0) {
-	var from = _v0.bZ;
-	var to = _v0.cv;
+	var from = _v0.bY;
+	var to = _v0.cs;
 	return $jjant$linear_algebra$Vec2$normalize(
 		A2($jjant$linear_algebra$Vec2$sub, to, from));
 };
 var $author$project$Line$adjustSize = F2(
 	function (_v0, line) {
-		var start = _v0.co;
-		var end = _v0.bQ;
+		var start = _v0.cl;
+		var end = _v0.bR;
 		var direction = $jjant$linear_algebra$Vec2$direction(
-			{bZ: line.z, cv: line.A});
+			{bY: line.z, cs: line.A});
 		var p1 = A2(
 			$jjant$linear_algebra$Vec2$add,
 			line.z,
@@ -5641,7 +5627,7 @@ var $author$project$Line$adjustSize = F2(
 		return {z: p1, A: p2};
 	});
 var $author$project$Ray$makeFromSegments = function (segments) {
-	return {ay: segments};
+	return {az: segments};
 };
 var $author$project$Simulation$makeRay = function (segments) {
 	var loop = F2(
@@ -5661,7 +5647,7 @@ var $author$project$Simulation$makeRay = function (segments) {
 						$elm$core$List$cons,
 						A2(
 							$author$project$Line$adjustSize,
-							{bQ: s2, co: s1},
+							{bR: s2, cl: s1},
 							A2($author$project$Line$make, p1, p2)),
 						acc),
 						$temp$list = A2($elm$core$List$cons, segment, rest);
@@ -5752,23 +5738,23 @@ var $author$project$Simulation$updateReflections = function (ctx) {
 	var observerReflections = A2($author$project$Simulation$generateObserverReflections, ctx._, ctx.X);
 	var objectReflections = A3($author$project$Simulation$generateObjectReflections, ctx._, ctx.Z, ctx.X);
 	var mirrorReflections = A2($author$project$Simulation$generateMirrorReflections, ctx._, ctx.X);
-	var maxDepth = ctx.ai.W;
+	var maxDepth = ctx.aj.W;
 	var allObserverReflections = A2(
 		$elm_community$list_extra$List$Extra$uniqueBy,
 		function (reflection) {
-			return reflection.ax;
+			return reflection.ay;
 		},
 		A6($author$project$Simulation$generateReflectedObserverReflections, 0, maxDepth, ctx._, observerReflections, ctx.X, observerReflections));
 	var allObjectReflections = A2(
 		$elm_community$list_extra$List$Extra$uniqueBy,
 		function (reflection) {
-			return reflection.ax;
+			return reflection.ay;
 		},
 		A6($author$project$Simulation$generateReflectedObjectReflections, 0, maxDepth, ctx._, objectReflections, ctx.X, objectReflections));
 	var allMirrorReflections = A2(
 		$elm_community$list_extra$List$Extra$uniqueBy,
 		function (reflection) {
-			return reflection.ax;
+			return reflection.ay;
 		},
 		A6($author$project$Simulation$generateReflectedMirrorReflections, 0, maxDepth, ctx._, mirrorReflections, ctx.X, mirrorReflections));
 	var allMirrors = _Utils_ap(
@@ -5776,13 +5762,13 @@ var $author$project$Simulation$updateReflections = function (ctx) {
 		A2(
 			$elm$core$List$map,
 			function ($) {
-				return $.ax;
+				return $.ay;
 			},
 			allMirrorReflections));
 	return _Utils_update(
 		ctx,
 		{
-			aq: ctx.ai.aa ? $elm$core$List$concat(
+			ar: ctx.aj.ab ? $elm$core$List$concat(
 				_List_fromArray(
 					[
 						A2(
@@ -5791,9 +5777,9 @@ var $author$project$Simulation$updateReflections = function (ctx) {
 							return $author$project$Simulation$makeRay(
 								_List_fromArray(
 									[
-										_Utils_Tuple2(ctx._.ch, ctx._.ac / 2),
-										_Utils_Tuple2(reflection.a2, 0),
-										_Utils_Tuple2(reflection.ax.ch, reflection.ax.ac / 2)
+										_Utils_Tuple2(ctx._.aa, ctx._.ad / 2),
+										_Utils_Tuple2(reflection.a3, 0),
+										_Utils_Tuple2(reflection.ay.aa, reflection.ay.ad / 2)
 									]));
 						},
 						allObserverReflections),
@@ -5803,14 +5789,14 @@ var $author$project$Simulation$updateReflections = function (ctx) {
 							return $author$project$Simulation$makeRay(
 								_List_fromArray(
 									[
-										_Utils_Tuple2(ctx._.ch, ctx._.ac / 2),
-										_Utils_Tuple2(reflection.a2, 0),
-										_Utils_Tuple2(reflection.ax.ch, reflection.ax.ac / 2)
+										_Utils_Tuple2(ctx._.aa, ctx._.ad / 2),
+										_Utils_Tuple2(reflection.a3, 0),
+										_Utils_Tuple2(reflection.ay.aa, reflection.ay.ad / 2)
 									]));
 						},
 						allObjectReflections)
 					])) : _List_Nil,
-			as: ctx.ai.ab ? $elm$core$List$concat(
+			at: ctx.aj.ac ? $elm$core$List$concat(
 				_List_fromArray(
 					[
 						A2(
@@ -5819,23 +5805,23 @@ var $author$project$Simulation$updateReflections = function (ctx) {
 							return $author$project$Simulation$makeRay(
 								_List_fromArray(
 									[
-										_Utils_Tuple2(reflection.aN.ch, reflection.aN.ac / 2),
-										_Utils_Tuple2(reflection.a2, $author$project$Mirror$width / 2),
-										_Utils_Tuple2(reflection.aN.ch, reflection.aN.ac / 2)
+										_Utils_Tuple2(reflection.aO.aa, reflection.aO.ad / 2),
+										_Utils_Tuple2(reflection.a3, $author$project$Mirror$width / 2),
+										_Utils_Tuple2(reflection.aO.aa, reflection.aO.ad / 2)
 									]));
 						},
 						allObserverReflections),
 						A2(
 						$elm$core$List$map,
 						function (reflection) {
-							var directLine = A2($author$project$Line$make, ctx._.ch, reflection.ax.ch);
+							var directLine = A2($author$project$Line$make, ctx._.aa, reflection.ay.aa);
 							var pointsByObserverDistance = A2(
 								$elm$core$List$sortBy,
-								$jjant$linear_algebra$Vec2$distanceSquared(ctx._.ch),
+								$jjant$linear_algebra$Vec2$distanceSquared(ctx._.aa),
 								A2(
 									$elm$core$List$filterMap,
 									function (mirror) {
-										return A2($author$project$Line$intersection, mirror.aI, directLine);
+										return A2($author$project$Line$intersection, mirror.aJ, directLine);
 									},
 									allMirrors));
 							var segments = A2(
@@ -5848,11 +5834,11 @@ var $author$project$Simulation$updateReflections = function (ctx) {
 								_Utils_ap(
 									A2(
 										$elm$core$List$cons,
-										_Utils_Tuple2(reflection.aN.ch, reflection.aN.ac / 2),
+										_Utils_Tuple2(reflection.aO.aa, reflection.aO.ad / 2),
 										segments),
 									_List_fromArray(
 										[
-											_Utils_Tuple2(ctx._.ch, ctx._.ac / 2)
+											_Utils_Tuple2(ctx._.aa, ctx._.ad / 2)
 										])));
 							return ray;
 						},
@@ -5860,11 +5846,11 @@ var $author$project$Simulation$updateReflections = function (ctx) {
 					])) : _List_Nil,
 			R: _Utils_update(
 				reflections,
-				{X: allMirrorReflections, Z: allObjectReflections, aL: allObserverReflections})
+				{X: allMirrorReflections, Z: allObjectReflections, aM: allObserverReflections})
 		});
 };
 var $author$project$Simulation$init = function (flags) {
-	var observer = A2($author$project$Observer$make, flags._.ch, flags._.ac);
+	var observer = A2($author$project$Observer$make, flags._.aa, flags._.ad);
 	var objects = A2(
 		$elm$core$List$map,
 		function (pos) {
@@ -5883,25 +5869,25 @@ var $author$project$Simulation$init = function (flags) {
 	return _Utils_Tuple2(
 		$author$project$Simulation$updateReflections(
 			{
-				aE: 0,
-				aq: _List_Nil,
-				ai: flags,
-				aj: 0,
+				aF: 0,
+				ar: _List_Nil,
+				aj: flags,
+				ak: 0,
 				J: dimensions.J,
-				as: _List_Nil,
+				at: _List_Nil,
 				X: mirrors,
 				Z: objects,
 				_: observer,
 				R: {
-					ah: {X: mirrors, Z: objects, _: observer},
+					ai: {X: mirrors, Z: objects, _: observer},
 					X: _List_Nil,
 					Z: _List_Nil,
-					aL: _List_Nil
+					aM: _List_Nil
 				},
 				S: $elm$core$Maybe$Nothing,
-				az: 0,
+				aA: 0,
 				N: dimensions.N,
-				af: flags.af
+				ag: flags.ag
 			}),
 		$elm$core$Platform$Cmd$none);
 };
@@ -5963,18 +5949,18 @@ var $author$project$Main$simulationsAndContent = function () {
 					X: _List_fromArray(
 						[
 							_Utils_Tuple2(
-							{aA: space, aB: (-space) * 2},
-							{aA: space, aB: space * 2})
+							{aB: space, aC: (-space) * 2},
+							{aB: space, aC: space * 2})
 						]),
 					Y: 30,
 					Z: _List_Nil,
 					_: {
-						ch: {aA: -space, aB: (space * 2) * 0.7},
-						ac: 30
+						aa: {aB: -space, aC: (space * 2) * 0.7},
+						ad: 30
 					},
-					aa: true,
 					ab: true,
-					af: 1
+					ac: true,
+					ag: 1
 				})),
 			_Utils_Tuple2(
 			_List_fromArray(
@@ -6048,21 +6034,21 @@ var $author$project$Main$simulationsAndContent = function () {
 					X: _List_fromArray(
 						[
 							_Utils_Tuple2(
-							{aA: space, aB: (-space) * 2},
-							{aA: space, aB: space * 2})
+							{aB: space, aC: (-space) * 2},
+							{aB: space, aC: space * 2})
 						]),
 					Y: 30,
 					Z: _List_fromArray(
 						[
-							{aA: -space, aB: ((-space) * 2) * 0.7}
+							{aB: -space, aC: ((-space) * 2) * 0.7}
 						]),
 					_: {
-						ch: {aA: -space, aB: (space * 2) * 0.7},
-						ac: 30
+						aa: {aB: -space, aC: (space * 2) * 0.7},
+						ad: 30
 					},
-					aa: true,
 					ab: true,
-					af: 1
+					ac: true,
+					ag: 1
 				})),
 			_Utils_Tuple2(
 			_List_fromArray(
@@ -6129,24 +6115,24 @@ var $author$project$Main$simulationsAndContent = function () {
 					X: _List_fromArray(
 						[
 							_Utils_Tuple2(
-							{aA: space, aB: (-space) * 2},
-							{aA: space, aB: space * 2}),
+							{aB: space, aC: (-space) * 2},
+							{aB: space, aC: space * 2}),
 							_Utils_Tuple2(
-							{aA: (-space) * 2, aB: (-space) * 2},
-							{aA: (-space) * 2, aB: space * 2})
+							{aB: (-space) * 2, aC: (-space) * 2},
+							{aB: (-space) * 2, aC: space * 2})
 						]),
 					Y: 30,
 					Z: _List_fromArray(
 						[
-							{aA: -space, aB: ((-space) * 2) * 0.7}
+							{aB: -space, aC: ((-space) * 2) * 0.7}
 						]),
 					_: {
-						ch: {aA: -space, aB: (space * 2) * 0.7},
-						ac: 30
+						aa: {aB: -space, aC: (space * 2) * 0.7},
+						ad: 30
 					},
-					aa: true,
 					ab: true,
-					af: 1
+					ac: true,
+					ag: 1
 				})),
 			_Utils_Tuple2(
 			_List_fromArray(
@@ -6213,24 +6199,24 @@ var $author$project$Main$simulationsAndContent = function () {
 					X: _List_fromArray(
 						[
 							_Utils_Tuple2(
-							{aA: space, aB: (-space) * 2},
-							{aA: space, aB: space * 2}),
+							{aB: space, aC: (-space) * 2},
+							{aB: space, aC: space * 2}),
 							_Utils_Tuple2(
-							{aA: (-space) * 2, aB: (-space) * 2},
-							{aA: (-space) * 2, aB: space * 2})
+							{aB: (-space) * 2, aC: (-space) * 2},
+							{aB: (-space) * 2, aC: space * 2})
 						]),
 					Y: 30,
 					Z: _List_fromArray(
 						[
-							{aA: -space, aB: ((-space) * 2) * 0.7}
+							{aB: -space, aC: ((-space) * 2) * 0.7}
 						]),
 					_: {
-						ch: {aA: -space, aB: (space * 2) * 0.7},
-						ac: 30
+						aa: {aB: -space, aC: (space * 2) * 0.7},
+						ad: 30
 					},
-					aa: true,
-					ab: false,
-					af: 0.6
+					ab: true,
+					ac: false,
+					ag: 0.6
 				})),
 			_Utils_Tuple2(
 			_List_fromArray(
@@ -6290,27 +6276,27 @@ var $author$project$Main$simulationsAndContent = function () {
 					X: _List_fromArray(
 						[
 							_Utils_Tuple2(
-							{aA: space, aB: (-space) * 2},
-							{aA: space, aB: space * 2}),
+							{aB: space, aC: (-space) * 2},
+							{aB: space, aC: space * 2}),
 							_Utils_Tuple2(
-							{aA: (-space) * 2, aB: (-space) * 2},
-							{aA: (-space) * 2, aB: space * 2}),
+							{aB: (-space) * 2, aC: (-space) * 2},
+							{aB: (-space) * 2, aC: space * 2}),
 							_Utils_Tuple2(
-							{aA: space, aB: (-space) * 2},
-							{aA: (-space) * 2, aB: (-space) * 2})
+							{aB: space, aC: (-space) * 2},
+							{aB: (-space) * 2, aC: (-space) * 2})
 						]),
 					Y: 30,
 					Z: _List_fromArray(
 						[
-							{aA: -space, aB: ((-space) * 2) * 0.7}
+							{aB: -space, aC: ((-space) * 2) * 0.7}
 						]),
 					_: {
-						ch: {aA: -space, aB: (space * 2) * 0.7},
-						ac: 30
+						aa: {aB: -space, aC: (space * 2) * 0.7},
+						ad: 30
 					},
-					aa: false,
 					ab: false,
-					af: 0.5
+					ac: false,
+					ag: 0.5
 				})),
 			_Utils_Tuple2(
 			_List_fromArray(
@@ -6363,31 +6349,31 @@ var $author$project$Main$simulationsAndContent = function () {
 					X: _List_fromArray(
 						[
 							_Utils_Tuple2(
-							{aA: space, aB: (-space) * 2},
-							{aA: space, aB: space * 2}),
+							{aB: space, aC: (-space) * 2},
+							{aB: space, aC: space * 2}),
 							_Utils_Tuple2(
-							{aA: (-space) * 2, aB: (-space) * 2},
-							{aA: (-space) * 2, aB: space * 2}),
+							{aB: (-space) * 2, aC: (-space) * 2},
+							{aB: (-space) * 2, aC: space * 2}),
 							_Utils_Tuple2(
-							{aA: space, aB: (-space) * 2},
-							{aA: (-space) * 2, aB: (-space) * 2}),
+							{aB: space, aC: (-space) * 2},
+							{aB: (-space) * 2, aC: (-space) * 2}),
 							_Utils_Tuple2(
-							{aA: space, aB: space * 2},
-							{aA: (-space) * 2, aB: space * 2})
+							{aB: space, aC: space * 2},
+							{aB: (-space) * 2, aC: space * 2})
 						]),
 					Y: 30,
 					Z: _List_fromArray(
 						[
-							{aA: -space, aB: ((-space) * 2) * 0.7},
-							{aA: 0, aB: 0}
+							{aB: -space, aC: ((-space) * 2) * 0.7},
+							{aB: 0, aC: 0}
 						]),
 					_: {
-						ch: {aA: -space, aB: (space * 2) * 0.7},
-						ac: 30
+						aa: {aB: -space, aC: (space * 2) * 0.7},
+						ad: 30
 					},
-					aa: false,
 					ab: false,
-					af: 0.5
+					ac: false,
+					ag: 0.5
 				}))
 		]);
 }();
@@ -6439,7 +6425,7 @@ var $elm$browser$Browser$AnimationManager$Delta = function (a) {
 };
 var $elm$browser$Browser$AnimationManager$State = F3(
 	function (subs, request, oldTime) {
-		return {aM: oldTime, bm: request, bp: subs};
+		return {aN: oldTime, bn: request, bq: subs};
 	});
 var $elm$browser$Browser$AnimationManager$init = $elm$core$Task$succeed(
 	A3($elm$browser$Browser$AnimationManager$State, _List_Nil, $elm$core$Maybe$Nothing, 0));
@@ -6450,8 +6436,8 @@ var $elm$core$Platform$sendToSelf = _Platform_sendToSelf;
 var $elm$core$Process$spawn = _Scheduler_spawn;
 var $elm$browser$Browser$AnimationManager$onEffects = F3(
 	function (router, subs, _v0) {
-		var request = _v0.bm;
-		var oldTime = _v0.aM;
+		var request = _v0.bn;
+		var oldTime = _v0.aN;
 		var _v1 = _Utils_Tuple2(request, subs);
 		if (_v1.a.$ === 1) {
 			if (!_v1.b.b) {
@@ -6499,8 +6485,8 @@ var $elm$time$Time$Posix = $elm$core$Basics$identity;
 var $elm$time$Time$millisToPosix = $elm$core$Basics$identity;
 var $elm$browser$Browser$AnimationManager$onSelfMsg = F3(
 	function (router, newTime, _v0) {
-		var subs = _v0.bp;
-		var oldTime = _v0.aM;
+		var subs = _v0.bq;
+		var oldTime = _v0.aN;
 		var send = function (sub) {
 			if (!sub.$) {
 				var tagger = sub.a;
@@ -6592,26 +6578,26 @@ var $elm$core$Tuple$mapSecond = F2(
 	});
 var $jjant$linear_algebra$Vec2$Vec2 = F2(
 	function (x, y) {
-		return {aA: x, aB: y};
+		return {aB: x, aC: y};
 	});
 var $jjant$linear_algebra$Vec2$vec2 = $jjant$linear_algebra$Vec2$Vec2;
 var $author$project$Simulation$screenPosToWorld = F2(
 	function (ctx, screenPos) {
 		var screenCenter = A2($jjant$linear_algebra$Vec2$vec2, ctx.N / 2, ctx.J / 2);
 		var centeredPos = A2($jjant$linear_algebra$Vec2$sub, screenPos, screenCenter);
-		var worldPos = A2($jjant$linear_algebra$Vec2$scale, 1 / ctx.af, centeredPos);
+		var worldPos = A2($jjant$linear_algebra$Vec2$scale, 1 / ctx.ag, centeredPos);
 		return worldPos;
 	});
 var $author$project$Simulation$updateSimulation = function (ctx) {
 	var reflections = ctx.R;
-	return (_Utils_eq(ctx._, reflections.ah._) && (_Utils_eq(ctx.Z, reflections.ah.Z) && _Utils_eq(ctx.X, reflections.ah.X))) ? ctx : $author$project$Simulation$updateReflections(
+	return (_Utils_eq(ctx._, reflections.ai._) && (_Utils_eq(ctx.Z, reflections.ai.Z) && _Utils_eq(ctx.X, reflections.ai.X))) ? ctx : $author$project$Simulation$updateReflections(
 		_Utils_update(
 			ctx,
 			{
 				R: _Utils_update(
 					reflections,
 					{
-						ah: {X: ctx.X, Z: ctx.Z, _: ctx._}
+						ai: {X: ctx.X, Z: ctx.Z, _: ctx._}
 					})
 			}));
 };
@@ -6634,7 +6620,7 @@ var $author$project$Simulation$update = F2(
 					$author$project$Simulation$updateSimulation(
 						_Utils_update(
 							ctx,
-							{aE: delta, aj: ctx.aj + 1, az: ctx.az + delta})),
+							{aF: delta, ak: ctx.ak + 1, aA: ctx.aA + delta})),
 					$elm$core$Platform$Cmd$none);
 			case 1:
 				var screenPos = msg.a;
@@ -6645,7 +6631,7 @@ var $author$project$Simulation$update = F2(
 							_: _Utils_update(
 								observer,
 								{
-									ch: A2($author$project$Simulation$screenPosToWorld, ctx, screenPos)
+									aa: A2($author$project$Simulation$screenPosToWorld, ctx, screenPos)
 								}),
 							S: $elm$core$Maybe$Just(screenPos)
 						}),
@@ -6665,7 +6651,7 @@ var $author$project$Simulation$update = F2(
 										_: _Utils_update(
 											observer,
 											{
-												ch: A2($author$project$Simulation$screenPosToWorld, ctx, screenPos)
+												aa: A2($author$project$Simulation$screenPosToWorld, ctx, screenPos)
 											}),
 										S: $elm$core$Maybe$Just(screenPos)
 									});
@@ -6903,7 +6889,7 @@ var $joakin$elm_canvas$Canvas$group = F2(
 				I: $joakin$elm_canvas$Canvas$Internal$Canvas$DrawableGroup(entities)
 			});
 	});
-var $mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$defaultOptions = {aO: true, aR: false};
+var $mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$defaultOptions = {aP: true, aS: false};
 var $elm$virtual_dom$VirtualDom$Custom = function (a) {
 	return {$: 3, a: a};
 };
@@ -6917,12 +6903,12 @@ var $elm$html$Html$Events$custom = F2(
 	});
 var $mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$Event = F5(
 	function (pointerType, pointer, pointerId, isPrimary, contactDetails) {
-		return {bH: contactDetails, b3: isPrimary, ce: pointer, cf: pointerId, cg: pointerType};
+		return {bI: contactDetails, b2: isPrimary, cd: pointer, ce: pointerId, cf: pointerType};
 	});
 var $elm$json$Json$Decode$bool = _Json_decodeBool;
 var $mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$ContactDetails = F5(
 	function (width, height, pressure, tiltX, tiltY) {
-		return {J: height, ci: pressure, cs: tiltX, ct: tiltY, N: width};
+		return {J: height, cg: pressure, cp: tiltX, cq: tiltY, N: width};
 	});
 var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$float = _Json_decodeFloat;
@@ -6937,7 +6923,7 @@ var $mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$contactDetailsDecod
 	A2($elm$json$Json$Decode$field, 'tiltY', $elm$json$Json$Decode$float));
 var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$Event = F6(
 	function (keys, button, clientPos, offsetPos, pagePos, screenPos) {
-		return {bB: button, bF: clientPos, b4: keys, b9: offsetPos, cd: pagePos, cm: screenPos};
+		return {bC: button, bG: clientPos, b3: keys, b8: offsetPos, cc: pagePos, cj: screenPos};
 	});
 var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$BackButton = 4;
 var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$ErrorButton = 0;
@@ -6976,7 +6962,7 @@ var $mpizenberg$elm_pointer_events$Internal$Decode$clientPos = A3(
 	A2($elm$json$Json$Decode$field, 'clientY', $elm$json$Json$Decode$float));
 var $mpizenberg$elm_pointer_events$Internal$Decode$Keys = F4(
 	function (alt, ctrl, meta, shift) {
-		return {bw: alt, bI: ctrl, b6: meta, cn: shift};
+		return {bx: alt, bJ: ctrl, b5: meta, ck: shift};
 	});
 var $elm$json$Json$Decode$map4 = _Json_map4;
 var $mpizenberg$elm_pointer_events$Internal$Decode$keys = A5(
@@ -7045,8 +7031,8 @@ var $mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$onWithOptions = F3(
 				function (ev) {
 					return {
 						K: tag(ev),
-						aO: options.aO,
-						aR: options.aR
+						aP: options.aP,
+						aS: options.aS
 					};
 				},
 				$mpizenberg$elm_pointer_events$Html$Events$Extra$Pointer$eventDecoder));
@@ -7183,11 +7169,11 @@ var $author$project$Line$render = F2(
 				[
 					A2(
 					$joakin$elm_canvas$Canvas$path,
-					_Utils_Tuple2(p1.aA, p1.aB),
+					_Utils_Tuple2(p1.aB, p1.aC),
 					_List_fromArray(
 						[
 							$joakin$elm_canvas$Canvas$lineTo(
-							_Utils_Tuple2(p2.aA, p2.aB))
+							_Utils_Tuple2(p2.aB, p2.aC))
 						]))
 				]));
 	});
@@ -7196,7 +7182,7 @@ var $joakin$elm_canvas$Canvas$Settings$stroke = function (color) {
 		$joakin$elm_canvas$Canvas$Internal$Canvas$Stroke(color));
 };
 var $author$project$Mirror$render = function (_v0) {
-	var line = _v0.aI;
+	var line = _v0.aJ;
 	return A2(
 		$joakin$elm_canvas$Canvas$group,
 		_List_Nil,
@@ -7309,8 +7295,8 @@ var $joakin$elm_canvas$Canvas$Settings$Advanced$transform = function (transforms
 						var m12 = t.a.p;
 						var m21 = t.a.q;
 						var m22 = t.a.r;
-						var dx = t.a.bN;
-						var dy = t.a.bO;
+						var dx = t.a.bO;
+						var dy = t.a.bP;
 						return A6($joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$transform, m11, m12, m21, m22, dx, dy);
 				}
 			},
@@ -7321,37 +7307,36 @@ var $joakin$elm_canvas$Canvas$Settings$Advanced$Translate = F2(
 		return {$: 2, a: a, b: b};
 	});
 var $joakin$elm_canvas$Canvas$Settings$Advanced$translate = $joakin$elm_canvas$Canvas$Settings$Advanced$Translate;
-var $author$project$Object$render = F2(
-	function (rotateAndScale, _v0) {
-		var pos = _v0.ch;
-		var size = _v0.ac;
-		var halfSize = size / 2;
-		var trianglePath = A2(
-			$joakin$elm_canvas$Canvas$path,
-			_Utils_Tuple2(0, pos.aB),
-			_List_fromArray(
-				[
-					$joakin$elm_canvas$Canvas$lineTo(
-					_Utils_Tuple2(0, -halfSize)),
-					$joakin$elm_canvas$Canvas$lineTo(
-					_Utils_Tuple2(size * 0.8, 0)),
-					$joakin$elm_canvas$Canvas$lineTo(
-					_Utils_Tuple2(0, halfSize))
-				]));
-		return A2(
-			$joakin$elm_canvas$Canvas$shapes,
-			_List_fromArray(
-				[
-					$joakin$elm_canvas$Canvas$Settings$fill($avh4$elm_color$Color$lightRed),
-					$joakin$elm_canvas$Canvas$Settings$Advanced$transform(
-					_List_fromArray(
-						[
-							A2($joakin$elm_canvas$Canvas$Settings$Advanced$translate, pos.aA, pos.aB)
-						]))
-				]),
-			_List_fromArray(
-				[trianglePath]));
-	});
+var $author$project$Object$render = function (_v0) {
+	var pos = _v0.aa;
+	var size = _v0.ad;
+	var halfSize = size / 2;
+	var trianglePath = A2(
+		$joakin$elm_canvas$Canvas$path,
+		_Utils_Tuple2(pos.aB, pos.aC),
+		_List_fromArray(
+			[
+				$joakin$elm_canvas$Canvas$lineTo(
+				_Utils_Tuple2(pos.aB, pos.aC - halfSize)),
+				$joakin$elm_canvas$Canvas$lineTo(
+				_Utils_Tuple2(pos.aB + (size * 0.8), pos.aC)),
+				$joakin$elm_canvas$Canvas$lineTo(
+				_Utils_Tuple2(pos.aB, pos.aC + halfSize))
+			]));
+	return A2(
+		$joakin$elm_canvas$Canvas$shapes,
+		_List_fromArray(
+			[
+				$joakin$elm_canvas$Canvas$Settings$fill($avh4$elm_color$Color$lightRed),
+				$joakin$elm_canvas$Canvas$Settings$Advanced$transform(
+				_List_fromArray(
+					[
+						A2($joakin$elm_canvas$Canvas$Settings$Advanced$translate, -(halfSize * 0.7), 0)
+					]))
+			]),
+		_List_fromArray(
+			[trianglePath]));
+};
 var $joakin$elm_canvas$Canvas$Internal$Canvas$Circle = F2(
 	function (a, b) {
 		return {$: 1, a: a, b: b};
@@ -7362,8 +7347,8 @@ var $joakin$elm_canvas$Canvas$circle = F2(
 	});
 var $avh4$elm_color$Color$lightPurple = A4($avh4$elm_color$Color$RgbaSpace, 173 / 255, 127 / 255, 168 / 255, 1.0);
 var $author$project$Observer$render = function (_v0) {
-	var pos = _v0.ch;
-	var size = _v0.ac;
+	var pos = _v0.aa;
+	var size = _v0.ad;
 	return A2(
 		$joakin$elm_canvas$Canvas$shapes,
 		_List_fromArray(
@@ -7374,13 +7359,14 @@ var $author$project$Observer$render = function (_v0) {
 			[
 				A2(
 				$joakin$elm_canvas$Canvas$circle,
-				_Utils_Tuple2(pos.aA, pos.aB),
+				_Utils_Tuple2(pos.aB, pos.aC),
 				size / 2)
 			]));
 };
+var $elm$core$Basics$atan2 = _Basics_atan2;
 var $jjant$linear_algebra$Vec2$angle = function (_v0) {
-	var x = _v0.aA;
-	var y = _v0.aB;
+	var x = _v0.aB;
+	var y = _v0.aC;
 	return A2($elm$core$Basics$atan2, y, x);
 };
 var $elm_community$list_extra$List$Extra$last = function (items) {
@@ -7407,7 +7393,7 @@ var $joakin$elm_canvas$Canvas$Settings$Advanced$Rotate = function (a) {
 var $joakin$elm_canvas$Canvas$Settings$Advanced$rotate = $joakin$elm_canvas$Canvas$Settings$Advanced$Rotate;
 var $author$project$Ray$render = F3(
 	function (color, width, _v0) {
-		var segments = _v0.ay;
+		var segments = _v0.az;
 		return A2(
 			$elm$core$Maybe$withDefault,
 			A2($joakin$elm_canvas$Canvas$group, _List_Nil, _List_Nil),
@@ -7433,7 +7419,7 @@ var $author$project$Ray$render = F3(
 									segments)),
 								function () {
 								var directionVec = $jjant$linear_algebra$Vec2$direction(
-									{bZ: lastSegment.z, cv: lastSegment.A});
+									{bY: lastSegment.z, cs: lastSegment.A});
 								var arrowTip = A2(
 									$jjant$linear_algebra$Vec2$add,
 									A2($jjant$linear_algebra$Vec2$scale, width, directionVec),
@@ -7442,7 +7428,7 @@ var $author$project$Ray$render = F3(
 								var angle = $jjant$linear_algebra$Vec2$angle(directionVec);
 								var arrowTransform = _List_fromArray(
 									[
-										A2($joakin$elm_canvas$Canvas$Settings$Advanced$translate, arrowTip.aA, arrowTip.aB),
+										A2($joakin$elm_canvas$Canvas$Settings$Advanced$translate, arrowTip.aB, arrowTip.aC),
 										$joakin$elm_canvas$Canvas$Settings$Advanced$rotate(angle)
 									]);
 								return A2(
@@ -7470,34 +7456,19 @@ var $author$project$Ray$render = F3(
 				},
 				$elm_community$list_extra$List$Extra$last(segments)));
 	});
-var $joakin$elm_canvas$Canvas$Settings$Advanced$Scale = F2(
-	function (a, b) {
-		return {$: 1, a: a, b: b};
-	});
-var $joakin$elm_canvas$Canvas$Settings$Advanced$scale = $joakin$elm_canvas$Canvas$Settings$Advanced$Scale;
 var $author$project$Reflection$render = F2(
 	function (renderReflected, reflection) {
-		return A2(
-			renderReflected,
-			_List_fromArray(
-				[
-					A2(
-					$joakin$elm_canvas$Canvas$Settings$Advanced$scale,
-					reflection.bW ? (-1) : 1,
-					reflection.bX ? (-1) : 1),
-					$joakin$elm_canvas$Canvas$Settings$Advanced$rotate(reflection.cl)
-				]),
-			reflection.ax);
+		return renderReflected(reflection.ay);
 	});
 var $author$project$Simulation$render = function (ctx) {
-	var frame = ctx.aj;
+	var frame = ctx.ak;
 	var width = ctx.N;
 	var height = ctx.J;
 	var observer = ctx._;
 	var objects = ctx.Z;
 	var mirrors = ctx.X;
-	var lightRays = ctx.as;
-	var eyeSightRays = ctx.aq;
+	var lightRays = ctx.at;
+	var eyeSightRays = ctx.ar;
 	var reflections = ctx.R;
 	return A2(
 		$joakin$elm_canvas$Canvas$group,
@@ -7512,11 +7483,7 @@ var $author$project$Simulation$render = function (ctx) {
 					]),
 				A2(
 					$elm$core$List$map,
-					$author$project$Reflection$render(
-						F2(
-							function (_v0, o) {
-								return $author$project$Mirror$render(o);
-							})),
+					$author$project$Reflection$render($author$project$Mirror$render),
 					reflections.X)),
 				A2(
 				$joakin$elm_canvas$Canvas$group,
@@ -7526,12 +7493,8 @@ var $author$project$Simulation$render = function (ctx) {
 					]),
 				A2(
 					$elm$core$List$map,
-					$author$project$Reflection$render(
-						F2(
-							function (_v1, o) {
-								return $author$project$Observer$render(o);
-							})),
-					reflections.aL)),
+					$author$project$Reflection$render($author$project$Observer$render),
+					reflections.aM)),
 				A2(
 				$joakin$elm_canvas$Canvas$group,
 				_List_fromArray(
@@ -7540,11 +7503,7 @@ var $author$project$Simulation$render = function (ctx) {
 					]),
 				A2(
 					$elm$core$List$map,
-					$author$project$Reflection$render(
-						F2(
-							function (rotateScale, o) {
-								return A2($author$project$Object$render, rotateScale, o);
-							})),
+					$author$project$Reflection$render($author$project$Object$render),
 					reflections.Z)),
 				A2(
 				$joakin$elm_canvas$Canvas$group,
@@ -7554,11 +7513,7 @@ var $author$project$Simulation$render = function (ctx) {
 					]),
 				A2(
 					$elm$core$List$map,
-					$author$project$Reflection$render(
-						F2(
-							function (_v2, o) {
-								return $author$project$Mirror$render(o);
-							})),
+					$author$project$Reflection$render($author$project$Mirror$render),
 					reflections.X)),
 				A2(
 				$joakin$elm_canvas$Canvas$group,
@@ -7567,10 +7522,7 @@ var $author$project$Simulation$render = function (ctx) {
 				A2(
 				$joakin$elm_canvas$Canvas$group,
 				_List_Nil,
-				A2(
-					$elm$core$List$map,
-					$author$project$Object$render(_List_Nil),
-					objects)),
+				A2($elm$core$List$map, $author$project$Object$render, objects)),
 				A2(
 				$joakin$elm_canvas$Canvas$group,
 				_List_Nil,
@@ -7632,7 +7584,7 @@ var $author$project$Simulation$renderTestPointer = function (_v0) {
 							$joakin$elm_canvas$Canvas$Settings$Advanced$transform(
 							_List_fromArray(
 								[
-									A2($joakin$elm_canvas$Canvas$Settings$Advanced$translate, pos.aA, pos.aB)
+									A2($joakin$elm_canvas$Canvas$Settings$Advanced$translate, pos.aB, pos.aC)
 								]))
 						]),
 					_List_fromArray(
@@ -7656,6 +7608,11 @@ var $author$project$Simulation$renderTestPointer = function (_v0) {
 			testPointer));
 };
 var $elm$core$Basics$round = _Basics_round;
+var $joakin$elm_canvas$Canvas$Settings$Advanced$Scale = F2(
+	function (a, b) {
+		return {$: 1, a: a, b: b};
+	});
+var $joakin$elm_canvas$Canvas$Settings$Advanced$scale = $joakin$elm_canvas$Canvas$Settings$Advanced$Scale;
 var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
 var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
 var $elm$html$Html$canvas = _VirtualDom_node('canvas');
@@ -8095,7 +8052,7 @@ var $joakin$elm_canvas$Canvas$renderTextFill = F5(
 	function (txt, x, y, maybeColor, cmds) {
 		return A2(
 			$elm$core$List$cons,
-			A4($joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$fillText, txt.aS, x, y, txt.aJ),
+			A4($joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$fillText, txt.aT, x, y, txt.aK),
 			function () {
 				if (!maybeColor.$) {
 					var color = maybeColor.a;
@@ -8138,7 +8095,7 @@ var $joakin$elm_canvas$Canvas$renderTextStroke = F5(
 	function (txt, x, y, maybeColor, cmds) {
 		return A2(
 			$elm$core$List$cons,
-			A4($joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$strokeText, txt.aS, x, y, txt.aJ),
+			A4($joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$strokeText, txt.aT, x, y, txt.aK),
 			function () {
 				if (!maybeColor.$) {
 					var color = maybeColor.a;
@@ -8153,7 +8110,7 @@ var $joakin$elm_canvas$Canvas$renderTextStroke = F5(
 	});
 var $joakin$elm_canvas$Canvas$renderTextDrawOp = F3(
 	function (drawOp, txt, cmds) {
-		var _v0 = txt.bf;
+		var _v0 = txt.bg;
 		var x = _v0.a;
 		var y = _v0.b;
 		switch (drawOp.$) {
@@ -8230,11 +8187,11 @@ var $joakin$elm_canvas$Canvas$Internal$Texture$drawTexture = F4(
 			function () {
 				if (!t.$) {
 					var image = t.a;
-					return A9($joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$drawImage, 0, 0, image.N, image.J, x, y, image.N, image.J, image.ar);
+					return A9($joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$drawImage, 0, 0, image.N, image.J, x, y, image.N, image.J, image.as);
 				} else {
 					var sprite = t.a;
 					var image = t.b;
-					return A9($joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$drawImage, sprite.aA, sprite.aB, sprite.N, sprite.J, x, y, sprite.N, sprite.J, image.ar);
+					return A9($joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$drawImage, sprite.aB, sprite.aC, sprite.N, sprite.J, x, y, sprite.N, sprite.J, image.as);
 				}
 			}(),
 			cmds);
@@ -8359,7 +8316,7 @@ var $joakin$elm_canvas$Canvas$Internal$Texture$decodeTextureImage = A2(
 				function (tagName, width, height) {
 					return (tagName === 'IMG') ? $elm$core$Maybe$Just(
 						$joakin$elm_canvas$Canvas$Internal$Texture$TImage(
-							{J: height, ar: image, N: width})) : $elm$core$Maybe$Nothing;
+							{J: height, as: image, N: width})) : $elm$core$Maybe$Nothing;
 				}),
 			A2($elm$json$Json$Decode$field, 'tagName', $elm$json$Json$Decode$string),
 			A2($elm$json$Json$Decode$field, 'width', $elm$json$Json$Decode$float),
@@ -8433,7 +8390,7 @@ var $joakin$elm_canvas$Canvas$toHtmlWith = F3(
 			A2(
 				$elm$core$List$cons,
 				_Utils_Tuple2('__canvas', $joakin$elm_canvas$Canvas$cnvs),
-				A2($elm$core$List$map, $joakin$elm_canvas$Canvas$renderTextureSource, options.br)));
+				A2($elm$core$List$map, $joakin$elm_canvas$Canvas$renderTextureSource, options.bs)));
 	});
 var $joakin$elm_canvas$Canvas$toHtml = F3(
 	function (_v0, attrs, entities) {
@@ -8441,7 +8398,7 @@ var $joakin$elm_canvas$Canvas$toHtml = F3(
 		var h = _v0.b;
 		return A3(
 			$joakin$elm_canvas$Canvas$toHtmlWith,
-			{J: h, br: _List_Nil, N: w},
+			{J: h, bs: _List_Nil, N: w},
 			attrs,
 			entities);
 	});
@@ -8450,7 +8407,7 @@ var $author$project$Simulation$view = function (ctx) {
 	var height = ctx.J;
 	var screenCenter = A2($jjant$linear_algebra$Vec2$vec2, width / 2, height / 2);
 	var offsetPos = function (event) {
-		return $author$project$Extra$Vec2$fromTuple(event.ce.b9);
+		return $author$project$Extra$Vec2$fromTuple(event.cd.b8);
 	};
 	var border = 25;
 	return A3(
@@ -8499,8 +8456,8 @@ var $author$project$Simulation$view = function (ctx) {
 						$joakin$elm_canvas$Canvas$Settings$Advanced$transform(
 						_List_fromArray(
 							[
-								A2($joakin$elm_canvas$Canvas$Settings$Advanced$scale, ctx.af, ctx.af),
-								A2($joakin$elm_canvas$Canvas$Settings$Advanced$translate, screenCenter.aA / ctx.af, screenCenter.aB / ctx.af)
+								A2($joakin$elm_canvas$Canvas$Settings$Advanced$scale, ctx.ag, ctx.ag),
+								A2($joakin$elm_canvas$Canvas$Settings$Advanced$translate, screenCenter.aB / ctx.ag, screenCenter.aC / ctx.ag)
 							]))
 					]),
 				_List_fromArray(
@@ -8517,7 +8474,7 @@ var $elm$core$Tuple$pair = F2(
 var $elm_community$list_extra$List$Extra$zip = $elm$core$List$map2($elm$core$Tuple$pair);
 var $author$project$Main$view = function (model) {
 	return {
-		bz: _List_fromArray(
+		bA: _List_fromArray(
 			[
 				A2(
 				$elm$html$Html$div,
@@ -8548,10 +8505,10 @@ var $author$project$Main$view = function (model) {
 						}),
 					A2($elm_community$list_extra$List$Extra$zip, $author$project$Main$content, model)))
 			]),
-		cu: 'Sketch'
+		cr: 'Sketch'
 	};
 };
 var $author$project$Main$main = $elm$browser$Browser$document(
-	{b2: $author$project$Main$init, cq: $author$project$Main$subscriptions, cA: $author$project$Main$update, cB: $author$project$Main$view});
+	{b1: $author$project$Main$init, cn: $author$project$Main$subscriptions, cx: $author$project$Main$update, cy: $author$project$Main$view});
 _Platform_export({'Main':{'init':$author$project$Main$main(
 	$elm$json$Json$Decode$succeed(0))(0)}});}(this));
