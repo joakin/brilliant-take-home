@@ -2,8 +2,6 @@ module Reflection exposing (Reflection, make, render)
 
 import Canvas exposing (..)
 import Canvas.Settings exposing (..)
-import Color
-import Extra.Vec2 as Vec2
 import Mirror exposing (Mirror)
 import Vec2 exposing (Vec2)
 

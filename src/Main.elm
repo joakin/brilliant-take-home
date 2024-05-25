@@ -219,25 +219,55 @@ updateSimulation ({ reflections } as ctx) =
 updateReflections : Context -> Context
 updateReflections ({ reflections } as ctx) =
     let
+        maxDepth =
+            2
+
+        mirrorReflections =
+            generateMirrorReflections ctx.observer ctx.mirrors
+
+        allMirrorReflections =
+            generateReflectedMirrorReflections
+                0
+                maxDepth
+                ctx.observer
+                mirrorReflections
+                ctx.mirrors
+                mirrorReflections
+
         observerReflections =
             generateObserverReflections ctx.observer ctx.mirrors
+
+        allObserverReflections =
+            generateReflectedObserverReflections
+                0
+                maxDepth
+                ctx.observer
+                observerReflections
+                ctx.mirrors
+                observerReflections
 
         objectReflections =
             generateObjectReflections ctx.observer ctx.objects ctx.mirrors
 
-        mirrorReflections =
-            generateMirrorReflections ctx.observer ctx.mirrors
+        allObjectReflections =
+            generateReflectedObjectReflections
+                0
+                maxDepth
+                ctx.observer
+                objectReflections
+                ctx.mirrors
+                objectReflections
     in
     { ctx
         | reflections =
             { reflections
-                | observers = observerReflections
-                , objects = objectReflections
-                , mirrors = mirrorReflections
+                | observers = allObserverReflections
+                , objects = allObjectReflections
+                , mirrors = allMirrorReflections
             }
         , lightRays =
             List.concat
-                [ observerReflections
+                [ allObserverReflections
                     |> List.map
                         (\reflection ->
                             makeRay
@@ -246,7 +276,7 @@ updateReflections ({ reflections } as ctx) =
                                 , ( reflection.original.pos, reflection.original.size / 2 )
                                 ]
                         )
-                , objectReflections
+                , allObjectReflections
                     |> List.map
                         (\reflection ->
                             makeRay
@@ -258,7 +288,7 @@ updateReflections ({ reflections } as ctx) =
                 ]
         , eyeSightRays =
             List.concat
-                [ observerReflections
+                [ allObserverReflections
                     |> List.map
                         (\reflection ->
                             makeRay
@@ -267,7 +297,7 @@ updateReflections ({ reflections } as ctx) =
                                 , ( reflection.reflected.pos, reflection.reflected.size / 2 )
                                 ]
                         )
-                , objectReflections
+                , allObjectReflections
                     |> List.map
                         (\reflection ->
                             makeRay
@@ -322,6 +352,61 @@ generateObserverReflections observer mirrors =
         mirrors
 
 
+generateReflectedObserverReflections :
+    Int
+    -> Int
+    -> Observer
+    -> List (Reflection Observer)
+    -> List Mirror
+    -> List (Reflection Observer)
+    -> List (Reflection Observer)
+generateReflectedObserverReflections depth maxDepth observer reflectedObservers mirrors allObserverReflections =
+    if depth >= maxDepth then
+        allObserverReflections
+
+    else
+        let
+            newReflectedObservers : List (Reflection Observer)
+            newReflectedObservers =
+                List.concatMap
+                    (\mirror ->
+                        List.filterMap
+                            (\reflectedObserver ->
+                                if mirror /= reflectedObserver.mirror then
+                                    let
+                                        reReflectedObserver : Observer
+                                        reReflectedObserver =
+                                            Observer.make
+                                                (Line.mirroredPosition reflectedObserver.reflected.pos mirror.line)
+                                                reflectedObserver.reflected.size
+                                    in
+                                    Line.intersection (Line.make reReflectedObserver.pos observer.pos) mirror.line
+                                        |> Maybe.map
+                                            (\intersectionPoint ->
+                                                Reflection.make
+                                                    { reflected = reReflectedObserver
+                                                    , original = reflectedObserver.original
+                                                    }
+                                                    intersectionPoint
+                                                    mirror
+                                            )
+
+                                else
+                                    Nothing
+                            )
+                            reflectedObservers
+                    )
+                    mirrors
+        in
+        generateReflectedObserverReflections
+            (depth + 1)
+            maxDepth
+            observer
+            newReflectedObservers
+            mirrors
+            (allObserverReflections ++ newReflectedObservers)
+
+
 generateObjectReflections : Observer -> List Object -> List Mirror -> List (Reflection Object)
 generateObjectReflections observer objects mirrors =
     List.concatMap
@@ -346,6 +431,61 @@ generateObjectReflections observer objects mirrors =
                 objects
         )
         mirrors
+
+
+generateReflectedObjectReflections :
+    Int
+    -> Int
+    -> Observer
+    -> List (Reflection Object)
+    -> List Mirror
+    -> List (Reflection Object)
+    -> List (Reflection Object)
+generateReflectedObjectReflections depth maxDepth observer reflectedObjects mirrors allObjectReflections =
+    if depth >= maxDepth then
+        allObjectReflections
+
+    else
+        let
+            newReflectedObjects : List (Reflection Object)
+            newReflectedObjects =
+                List.concatMap
+                    (\mirror ->
+                        List.filterMap
+                            (\reflectedObject ->
+                                if mirror /= reflectedObject.mirror then
+                                    let
+                                        reReflectedObject : Object
+                                        reReflectedObject =
+                                            Object.make
+                                                (Line.mirroredPosition reflectedObject.reflected.pos mirror.line)
+                                                reflectedObject.reflected.size
+                                    in
+                                    Line.intersection (Line.make reReflectedObject.pos observer.pos) mirror.line
+                                        |> Maybe.map
+                                            (\intersectionPoint ->
+                                                Reflection.make
+                                                    { reflected = reReflectedObject
+                                                    , original = reflectedObject.original
+                                                    }
+                                                    intersectionPoint
+                                                    mirror
+                                            )
+
+                                else
+                                    Nothing
+                            )
+                            reflectedObjects
+                    )
+                    mirrors
+        in
+        generateReflectedObjectReflections
+            (depth + 1)
+            maxDepth
+            observer
+            newReflectedObjects
+            mirrors
+            (allObjectReflections ++ newReflectedObjects)
 
 
 generateMirrorReflections : Observer -> List Mirror -> List (Reflection Mirror)
@@ -391,6 +531,70 @@ generateMirrorReflections observer mirrors =
         mirrors
 
 
+generateReflectedMirrorReflections :
+    Int
+    -> Int
+    -> Observer
+    -> List (Reflection Mirror)
+    -> List Mirror
+    -> List (Reflection Mirror)
+    -> List (Reflection Mirror)
+generateReflectedMirrorReflections depth maxDepth observer reflectedMirrors mirrors allMirrorReflections =
+    if depth >= maxDepth then
+        allMirrorReflections
+
+    else
+        let
+            newReflectedMirrors =
+                List.concatMap
+                    (\mirror ->
+                        List.filterMap
+                            (\reflectedMirror ->
+                                if mirror /= reflectedMirror.mirror then
+                                    let
+                                        reReflectedMirror =
+                                            Mirror.make
+                                                (Line.mirroredPosition reflectedMirror.reflected.line.p1 mirror.line)
+                                                (Line.mirroredPosition reflectedMirror.reflected.line.p2 mirror.line)
+
+                                        reflection intersectionPoint =
+                                            Reflection.make
+                                                { reflected = reReflectedMirror
+                                                , original = reflectedMirror.original
+                                                }
+                                                intersectionPoint
+                                                mirror
+                                    in
+                                    case
+                                        ( Line.intersection (Line.make observer.pos reReflectedMirror.line.p1) mirror.line
+                                        , Line.intersection (Line.make observer.pos reReflectedMirror.line.p2) mirror.line
+                                        )
+                                    of
+                                        ( Just intersectionPoint, _ ) ->
+                                            Just <| reflection intersectionPoint
+
+                                        ( _, Just intersectionPoint ) ->
+                                            Just <| reflection intersectionPoint
+
+                                        _ ->
+                                            Nothing
+
+                                else
+                                    Nothing
+                            )
+                            reflectedMirrors
+                    )
+                    mirrors
+        in
+        generateReflectedMirrorReflections
+            (depth + 1)
+            maxDepth
+            observer
+            newReflectedMirrors
+            mirrors
+            (allMirrorReflections ++ newReflectedMirrors)
+
+
 
 -- RENDER
 
@@ -426,7 +630,7 @@ render ({ frame, width, height, observer, objects, mirrors, lightRays, eyeSightR
             center ctx
 
         zoom =
-            0.75
+            0.5
     in
     group [ transform [ translate centerPos.x centerPos.y, scale zoom zoom, translate -centerPos.x -centerPos.y ] ]
         [ group [ alpha 0.3 ] <| List.map (Reflection.render Mirror.render) reflections.mirrors
