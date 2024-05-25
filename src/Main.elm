@@ -99,7 +99,7 @@ simulationsAndContent =
             { zoom = 0.6
             , maxRecursion = 4
             , showLightRays = False
-            , showEyeSightRays = False
+            , showEyeSightRays = True
             , observer = { pos = { x = -space, y = space * 2 * 0.7 }, size = 30 }
             , objectSize = 30
             , objects =
