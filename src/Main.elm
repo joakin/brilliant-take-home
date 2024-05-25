@@ -39,6 +39,7 @@ type alias Flags =
 type alias Context =
     { width : Float
     , height : Float
+    , zoom : Float
     , frame : Float
     , time : Float
     , delta : Float
@@ -63,9 +64,9 @@ type alias Context =
 
 type Msg
     = Frame Float
-    | CanvasPointerDown Pointer.Event
-    | CanvasPointerMove Pointer.Event
-    | CanvasPointerUp Pointer.Event
+    | CanvasPointerDown Vec2
+    | CanvasPointerMove Vec2
+    | CanvasPointerUp Vec2
 
 
 init : Flags -> ( Context, Cmd Msg )
@@ -79,68 +80,56 @@ init _ =
         size =
             30
 
-        centerPos =
-            center dimensions
-
         space =
             50
 
         observer =
-            Observer.make (centerPos |> Vec2.add { x = -space, y = space * 2 * 0.7 }) size
+            Observer.make { x = -space, y = space * 2 * 0.7 } size
 
         objects =
             [ Object.make
-                (centerPos
-                    |> Vec2.add (Vec2.vec2 -space (-space * 2 * 0.7))
-                )
+                (Vec2.vec2 -space (-space * 2 * 0.7))
                 size
             ]
 
         mirrors =
             [ let
                 p1 =
-                    centerPos
-                        |> Vec2.add (Vec2.vec2 space (-space * 2))
+                    Vec2.vec2 space (-space * 2)
 
                 p2 =
-                    centerPos
-                        |> Vec2.add (Vec2.vec2 space (space * 2))
+                    Vec2.vec2 space (space * 2)
               in
               Mirror.make p1 p2
             , let
                 p1 =
-                    centerPos
-                        |> Vec2.add (Vec2.vec2 (-space * 2) (-space * 2))
+                    Vec2.vec2 (-space * 2) (-space * 2)
 
                 p2 =
-                    centerPos
-                        |> Vec2.add (Vec2.vec2 (-space * 2) (space * 2))
+                    Vec2.vec2 (-space * 2) (space * 2)
               in
               Mirror.make p1 p2
             , let
                 p1 =
-                    centerPos
-                        |> Vec2.add (Vec2.vec2 space (-space * 2))
+                    Vec2.vec2 space (-space * 2)
 
                 p2 =
-                    centerPos
-                        |> Vec2.add (Vec2.vec2 (-space * 2) (-space * 2))
+                    Vec2.vec2 (-space * 2) (-space * 2)
               in
               Mirror.make p1 p2
             , let
                 p1 =
-                    centerPos
-                        |> Vec2.add (Vec2.vec2 space (space * 2))
+                    Vec2.vec2 space (space * 2)
 
                 p2 =
-                    centerPos
-                        |> Vec2.add (Vec2.vec2 (-space * 2) (space * 2))
+                    Vec2.vec2 (-space * 2) (space * 2)
               in
               Mirror.make p1 p2
             ]
     in
     ( { width = dimensions.width
       , height = dimensions.height
+      , zoom = 0.5
       , frame = 0
       , time = 0
       , delta = 0
@@ -188,29 +177,44 @@ update msg ({ observer } as ctx) =
             , Cmd.none
             )
 
-        CanvasPointerDown event ->
+        CanvasPointerDown screenPos ->
             ( { ctx
-                | testPointer = Just <| Vec2.fromTuple event.pointer.offsetPos
-                , observer = { observer | pos = Vec2.fromTuple event.pointer.offsetPos }
+                | testPointer = Just screenPos
+                , observer = { observer | pos = screenPosToWorld ctx screenPos }
               }
             , Cmd.none
             )
 
-        CanvasPointerMove event ->
+        CanvasPointerMove screenPos ->
             ( ctx.testPointer
                 |> Maybe.map
                     (\_ ->
                         { ctx
-                            | testPointer = Just <| Vec2.fromTuple event.pointer.offsetPos
-                            , observer = { observer | pos = Vec2.fromTuple event.pointer.offsetPos }
+                            | testPointer = Just screenPos
+                            , observer = { observer | pos = screenPosToWorld ctx screenPos }
                         }
                     )
                 |> Maybe.withDefault ctx
             , Cmd.none
             )
 
-        CanvasPointerUp event ->
+        CanvasPointerUp _ ->
             ( { ctx | testPointer = Nothing }, Cmd.none )
+
+
+screenPosToWorld : Context -> Vec2 -> Vec2
+screenPosToWorld ctx screenPos =
+    let
+        screenCenter =
+            Vec2.vec2 (ctx.width / 2) (ctx.height / 2)
+
+        centeredPos =
+            Vec2.sub screenPos screenCenter
+
+        worldPos =
+            Vec2.scale (1 / ctx.zoom) centeredPos
+    in
+    worldPos
 
 
 updateSimulation : Context -> Context
@@ -643,16 +647,29 @@ view : Context -> Browser.Document Msg
 view ({ width, height } as ctx) =
     { title = "Sketch"
     , body =
+        let
+            offsetPos event =
+                Vec2.fromTuple event.pointer.offsetPos
+
+            screenCenter =
+                Vec2.vec2 (width / 2) (height / 2)
+        in
         [ Canvas.toHtml
             ( round width, round height )
             [ style "display" "block"
             , style "border" "25px solid rgba(0, 0, 0, 0.05)"
-            , Pointer.onDown (\event -> CanvasPointerDown event)
-            , Pointer.onMove (\event -> CanvasPointerMove event)
-            , Pointer.onUp (\event -> CanvasPointerUp event)
+            , Pointer.onDown (\event -> CanvasPointerDown <| offsetPos event)
+            , Pointer.onMove (\event -> CanvasPointerMove <| offsetPos event)
+            , Pointer.onUp (\event -> CanvasPointerUp <| offsetPos event)
             ]
             [ clearScreen ctx
-            , render ctx
+            , group
+                [ transform
+                    [ scale ctx.zoom ctx.zoom
+                    , translate (screenCenter.x / ctx.zoom) (screenCenter.y / ctx.zoom)
+                    ]
+                ]
+                [ render ctx ]
             , renderTestPointer ctx
             ]
         ]
@@ -665,14 +682,7 @@ clearScreen { width, height } =
 
 render : Context -> Renderable
 render ({ frame, width, height, observer, objects, mirrors, lightRays, eyeSightRays, reflections } as ctx) =
-    let
-        centerPos =
-            center ctx
-
-        zoom =
-            0.5
-    in
-    group [ transform [ translate centerPos.x centerPos.y, scale zoom zoom, translate -centerPos.x -centerPos.y ] ]
+    group []
         [ group [ alpha 0.3 ] <| List.map (Reflection.render Mirror.render) reflections.mirrors
         , group [ alpha 0.3 ] <| List.map (Reflection.render Observer.render) reflections.observers
         , group [ alpha 0.3 ] <| List.map (Reflection.render Object.render) reflections.objects
@@ -680,8 +690,8 @@ render ({ frame, width, height, observer, objects, mirrors, lightRays, eyeSightR
         , group [] <| List.map Mirror.render mirrors
         , group [] <| List.map Object.render objects
         , group [] [ Observer.render observer ]
-        , group [] <| List.map (Ray.render Color.lightGreen 2) eyeSightRays
-        , group [] <| List.map (Ray.render Color.lightYellow 3) lightRays
+        , group [ alpha 0.3 ] <| List.map (Ray.render Color.lightGreen 2) eyeSightRays
+        , group [ alpha 0.6 ] <| List.map (Ray.render Color.lightYellow 3) lightRays
         ]
 
 
@@ -692,13 +702,14 @@ renderTestPointer { testPointer } =
             (\pos ->
                 group [ transform [ translate pos.x pos.y ] ]
                     [ shapes [ fill <| Color.hsla 0.15 1.0 0.5 0.3 ] [ circle ( 0, 0 ) 20 ]
-                    , text
-                        [ font { size = 12, family = "sans-serif" }
-                        , align Center
-                        , fill Color.black
-                        ]
-                        ( 0, -30 )
-                        ("x: " ++ String.fromFloat pos.x ++ ", y: " ++ String.fromFloat pos.y)
+
+                    -- , text
+                    --     [ font { size = 12, family = "sans-serif" }
+                    --     , align Center
+                    --     , fill Color.black
+                    --     ]
+                    --     ( 0, -30 )
+                    --     ("x: " ++ String.fromFloat pos.x ++ ", y: " ++ String.fromFloat pos.y)
                     ]
             )
         |> Maybe.withDefault (shapes [] [])
@@ -706,11 +717,6 @@ renderTestPointer { testPointer } =
 
 
 -- UTILITIES
-
-
-center : { a | width : Float, height : Float } -> Vec2
-center { width, height } =
-    Vec2.vec2 (width / 2) (height / 2)
 
 
 lerp : (Float -> Float) -> Float -> Float -> Float -> Float
