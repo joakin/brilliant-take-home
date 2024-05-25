@@ -26,12 +26,8 @@ makeFromSegments segments =
     { segments = segments }
 
 
-render : Color -> Ray -> Renderable
-render color { segments } =
-    let
-        width =
-            3
-    in
+render : Color -> Float -> Ray -> Renderable
+render color width { segments } =
     List.last segments
         |> Maybe.map
             (\lastSegment ->

@@ -1,4 +1,4 @@
-module Line exposing (Line, displace, intersection, make, mirroredPosition, render)
+module Line exposing (Line, adjustSize, displace, intersection, make, mirroredPosition, render)
 
 import Canvas exposing (..)
 import Canvas.Settings exposing (..)
@@ -116,6 +116,23 @@ displace displacement { p1, p2 } =
     -- Displace both points by the displacement vector
     { p1 = Vec2.add p1 displacementVector
     , p2 = Vec2.add p2 displacementVector
+    }
+
+
+adjustSize : { start : Float, end : Float } -> Line -> Line
+adjustSize { start, end } line =
+    let
+        direction =
+            Vec2.direction { from = line.p1, to = line.p2 }
+
+        p1 =
+            Vec2.add line.p1 (Vec2.scale start direction)
+
+        p2 =
+            Vec2.add line.p2 (Vec2.scale -end direction)
+    in
+    { p1 = p1
+    , p2 = p2
     }
 
 

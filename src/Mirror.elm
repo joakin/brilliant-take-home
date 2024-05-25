@@ -1,4 +1,4 @@
-module Mirror exposing (Mirror, make, render)
+module Mirror exposing (Mirror, make, render, width)
 
 import Canvas exposing (..)
 import Canvas.Settings exposing (..)
@@ -22,12 +22,16 @@ make point1 point2 =
     }
 
 
+width =
+    5
+
+
 render : Mirror -> Renderable
 render { line } =
     group []
         [ Line.render
             [ stroke Color.lightBlue
-            , lineWidth 5
+            , lineWidth width
             ]
             line
         ]

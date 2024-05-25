@@ -27,8 +27,4 @@ make { original, reflected } intersection mirror =
 
 render : (a -> Renderable) -> Reflection a -> Renderable
 render renderReflected reflection =
-    group []
-        [ renderReflected reflection.reflected
-        , shapes [ fill Color.orange ]
-            [ circle (Vec2.toTuple reflection.intersection) 5 ]
-        ]
+    renderReflected reflection.reflected

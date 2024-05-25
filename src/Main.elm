@@ -223,36 +223,68 @@ updateReflections ({ reflections } as ctx) =
                 , mirrors = []
             }
         , lightRays =
-            observerReflections
-                |> List.map
-                    (\reflection ->
-                        Ray.makeFromSegments
-                            [ Line.make
-                                reflection.original.pos
-                                reflection.intersection
-                                |> Line.displace -5
-                            , Line.make
-                                reflection.intersection
-                                reflection.original.pos
-                                |> Line.displace 0
-                            ]
-                    )
+            List.concat
+                [ observerReflections
+                    |> List.map
+                        (\reflection ->
+                            makeRay
+                                [ ( reflection.original.pos, reflection.original.size / 2 )
+                                , ( reflection.intersection, Mirror.width / 2 )
+                                , ( reflection.original.pos, reflection.original.size / 2 )
+                                ]
+                        )
+                , objectReflections
+                    |> List.map
+                        (\reflection ->
+                            makeRay
+                                [ ( reflection.original.pos, reflection.original.size / 2 )
+                                , ( reflection.intersection, Mirror.width / 2 )
+                                , ( ctx.observer.pos, ctx.observer.size / 2 )
+                                ]
+                        )
+                ]
         , eyeSightRays =
-            observerReflections
-                |> List.map
-                    (\reflection ->
-                        Ray.makeFromSegments
-                            [ Line.make
-                                ctx.observer.pos
-                                reflection.intersection
-                                |> Line.displace 5
-                            , Line.make
-                                reflection.intersection
-                                reflection.reflected.pos
-                                |> Line.displace 5
-                            ]
-                    )
+            List.concat
+                [ observerReflections
+                    |> List.map
+                        (\reflection ->
+                            makeRay
+                                [ ( ctx.observer.pos, ctx.observer.size / 2 )
+                                , ( reflection.intersection, 0 )
+                                , ( reflection.reflected.pos, reflection.reflected.size / 2 )
+                                ]
+                        )
+                , objectReflections
+                    |> List.map
+                        (\reflection ->
+                            makeRay
+                                [ ( ctx.observer.pos, ctx.observer.size / 2 )
+                                , ( reflection.intersection, 0 )
+                                , ( reflection.reflected.pos, reflection.reflected.size / 2 )
+                                ]
+                        )
+                ]
     }
+
+
+makeRay : List ( Vec2, Float ) -> Ray
+makeRay segments =
+    let
+        loop acc list =
+            case list of
+                ( p1, s1 ) :: (( p2, s2 ) as segment) :: rest ->
+                    loop
+                        ((Line.make p1 p2
+                            |> Line.adjustSize { start = s1, end = s2 }
+                         )
+                            :: acc
+                        )
+                        (segment :: rest)
+
+                _ ->
+                    acc
+    in
+    Ray.makeFromSegments (loop [] segments |> List.reverse)
 
 
 generateObserverReflections : Observer -> List Mirror -> List (Reflection Observer)
@@ -340,8 +372,8 @@ render { frame, width, height, observer, objects, mirrors, lightRays, eyeSightRa
         , group [] <| List.map Mirror.render mirrors
         , group [] <| List.map Object.render objects
         , group [] [ Observer.render observer ]
-        , group [] <| List.map (Ray.render Color.lightGreen) eyeSightRays
-        , group [] <| List.map (Ray.render Color.lightYellow) lightRays
+        , group [] <| List.map (Ray.render Color.lightGreen 2) eyeSightRays
+        , group [] <| List.map (Ray.render Color.lightYellow 3) lightRays
         ]
 
 
