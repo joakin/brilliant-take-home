@@ -4,10 +4,10 @@
 
 - [Live demo](https://chimeces.com/brilliant-take-home/)
 - [Source code](https://github.com/joakin/brilliant-take-home)
-- Overview whiteboard: [excalidraw.com](https://excalidraw.com/#json=DrbMHE-ojsxax43BvESFC,nJhSo27qQRH3agrYyiwhPA), [PNG](), [SVG]()
+- Overview whiteboard: [excalidraw.com](https://excalidraw.com/#json=DrbMHE-ojsxax43BvESFC,nJhSo27qQRH3agrYyiwhPA), [PNG](https://github.com/joakin/brilliant-take-home/blob/master/docs/overview.png), [SVG](https://github.com/joakin/brilliant-take-home/blob/master/docs/overview.svg)
 - [Development plan and time log](https://github.com/joakin/brilliant-take-home/blob/master/docs/dev-plan.md)
 
-## Write-up
+## Questions
 
 1. Now that you've had a chance to implement it, are there different features you would have prioritized, knowing what you know now?
 
