@@ -20,8 +20,9 @@ separated the important features from "stretch" features.
 
 Given the conversation about the brief and the advice in it, my priority was to
 make a simulation/playground were I'd be able to have at least up to the
-infinite mirrors working (as they were emphasized as important), and then at the
-end layer on the simulation some sort of exercise or objective.
+parallel mirrors with infinite reflecitons working (as they were emphasized as
+important, or so I understood), and then at the end layer on the simulation some
+sort of exercise or objective.
 
 This approach ended up working but it did take me a bunch of time to figure out
 the right way to do the simulation once I got to multiple (N) mirrors and
