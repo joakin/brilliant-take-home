@@ -4,6 +4,8 @@
 
 - [Live demo](https://chimeces.com/brilliant-take-home/)
 - [Source code](https://github.com/joakin/brilliant-take-home)
+- Overview whiteboard: [excalidraw.com](https://excalidraw.com/#json=DrbMHE-ojsxax43BvESFC,nJhSo27qQRH3agrYyiwhPA), [PNG](), [SVG]()
+- [Development plan and time log](https://github.com/joakin/brilliant-take-home/blob/master/docs/dev-plan.md)
 
 ## Write-up
 

@@ -17,7 +17,7 @@
 
 ### Interactions
 
-- [x] Interact with observer (drag around)j
+- [x] Interact with observer (drag around)
 - [ ] Interact with mirror (drag around, axis locking)
 - [ ] Interactable tooltip (pulse, labels on top, etc)
 - [ ] Draggable/droppable areas
